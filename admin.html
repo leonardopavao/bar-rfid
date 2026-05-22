@@ -190,6 +190,11 @@ input[type=number]::-webkit-inner-spin-button{opacity:1}
 
       <!-- DASHBOARD -->
       <div class="sec on" id="sec-dashboard">
+        <!-- Alerta de estoque baixo -->
+        <div id="stk-alert" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);border-radius:12px;padding:14px 18px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:8px">⚠️ Estoque Baixo</div>
+          <div id="stk-alert-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+        </div>
         <div class="sg">
           <div class="sc"><div class="sc-l">Total Vendido</div><div class="sc-v ca" id="sv-v">–</div></div>
           <div class="sc"><div class="sc-l">Custo Total</div>  <div class="sc-v cd" id="sv-c">–</div></div>
@@ -283,9 +288,12 @@ input[type=number]::-webkit-inner-spin-button{opacity:1}
 
       <!-- RELATÓRIOS -->
       <div class="sec" id="sec-relatorios">
-        <div class="rtabs">
-          <button class="rtab on" onclick="relSw('geral',this)">📊 Relatório Geral</button>
-          <button class="rtab"    onclick="relSw('pessoa',this)">👤 Por Pessoa</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div class="rtabs" style="margin-bottom:0">
+            <button class="rtab on" onclick="relSw('geral',this)">📊 Relatório Geral</button>
+            <button class="rtab"    onclick="relSw('pessoa',this)">👤 Por Pessoa</button>
+          </div>
+          <button class="btn bp" onclick="exportPDF()">📄 Exportar PDF</button>
         </div>
         <div id="rel-g">
           <div class="sg" style="margin-bottom:18px">
@@ -328,7 +336,8 @@ input[type=number]::-webkit-inner-spin-button{opacity:1}
       <div class="fg"><label>Nome *</label><input type="text" id="mbev-n" placeholder="Ex: Cerveja Heineken"></div>
       <div class="fg"><label>Preço de Venda R$ *</label><input type="number" id="mbev-p" placeholder="0.00" step="0.01" min="0"></div>
       <div class="fg"><label>Custo Unitário R$ *</label><input type="number" id="mbev-c" placeholder="0.00" step="0.01" min="0"></div>
-      <div class="fg"><label>Estoque</label><input type="number" id="mbev-s" placeholder="0" min="0"></div>
+      <div class="fg"><label>Estoque Inicial</label><input type="number" id="mbev-s" placeholder="0" min="0"></div>
+      <div class="fg"><label>Estoque Mínimo ⚠️</label><input type="number" id="mbev-smin" placeholder="0" min="0"><small style="color:var(--text2);font-size:11px;margin-top:3px">Alerta quando chegar nessa quantidade</small></div>
     </div>
     <hr class="hr">
     <div class="fg" style="margin-bottom:11px">
@@ -374,13 +383,19 @@ input[type=number]::-webkit-inner-spin-button{opacity:1}
 <!-- MODAL HISTÓRICO CARTÃO -->
 <div class="mo" id="m-ch">
   <div class="mb" style="width:580px">
-    <div class="mh"><h3>Histórico — <span id="ch-n" class="ca"></span></h3><button class="mx" onclick="document.getElementById('m-ch').classList.remove('show')">✕</button></div>
-    <div style="display:flex;justify-content:space-between;background:var(--s2);border-radius:9px;padding:11px 14px;margin-bottom:14px;font-size:13px">
+    <div class="mh">
+      <h3>Histórico — <span id="ch-n" class="ca"></span></h3>
+      <button class="mx" onclick="document.getElementById('m-ch').classList.remove('show')">✕</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;background:var(--s2);border-radius:9px;padding:11px 14px;margin-bottom:14px;font-size:13px;align-items:center">
       <span>UID: <span id="ch-u" style="font-family:monospace;color:var(--text2)"></span></span>
-      <span>Tab: <strong class="ca" id="ch-t"></strong></span>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span>Tab: <strong class="ca" id="ch-t"></strong></span>
+        <button class="btn bd bsm" id="ch-estorno-btn" onclick="doEstorno()">↩️ Estornar último</button>
+      </div>
     </div>
     <div class="tw">
-      <table><thead><tr><th>Data</th><th>Hora</th><th>Bebida</th><th>Qtd</th><th>Unit.</th><th>Total</th></tr></thead>
+      <table><thead><tr><th>Data</th><th>Hora</th><th>Bebida</th><th>Qtd</th><th>Unit.</th><th>Total</th><th>Status</th></tr></thead>
       <tbody id="ch-tb"></tbody></table>
     </div>
   </div>
@@ -392,6 +407,7 @@ input[type=number]::-webkit-inner-spin-button{opacity:1}
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgn9N6tDTtVbPpAdjPMZjVgFB4RixrVmRSoiav9Yq-LYlb3QAd1criHB32GBVZJ_S3/exec';
 const PASS = '1234';
+const STOCK_WARN = 5; // alerta quando estoque <= esse valor
 
 // ── CACHE — carregado uma vez no login ──────────────────────
 let C = { cards: [], bevs: [], report: null, loaded: false };
@@ -537,6 +553,19 @@ function renderDashboard() {
   document.getElementById('sv-l').textContent = fmt(s.lucro);
   document.getElementById('sv-m').textContent = 'margem ' + s.margem + '%';
   document.getElementById('sv-t').textContent = s.totalTransacoes;
+
+  // Alerta de estoque baixo (usa estoqueMin de cada bebida)
+  const baixas = C.bevs.filter(b => b.ativo && b.estoqueMin > 0 && b.estoque <= b.estoqueMin);
+  const alertDiv = document.getElementById('stk-alert');
+  if (baixas.length) {
+    alertDiv.style.display = 'block';
+    document.getElementById('stk-alert-list').innerHTML = baixas.map(b =>
+      `<span style="background:rgba(239,68,68,.2);color:var(--danger);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600">${b.nome}: ${b.estoque} un.</span>`
+    ).join('');
+  } else {
+    alertDiv.style.display = 'none';
+  }
+
   const medals = ['🥇','🥈','🥉','4º','5º'];
   document.getElementById('d-cards').innerHTML = C.report.byCard.slice(0,5).map((c,i)=>`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
@@ -565,13 +594,16 @@ function renderBevTable() {
   if (!C.bevs.length) { tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei">🍺</div>Nenhuma bebida cadastrada</div></td></tr>`; return; }
   tb.innerHTML = C.bevs.map(b=>{
     const m = b.precoVenda>0 ? ((b.precoVenda-b.custoUnitario)/b.precoVenda*100).toFixed(1) : '0';
-    return `<tr>
+    const lowStk = b.ativo && b.estoqueMin > 0 && b.estoque <= b.estoqueMin;
+    const stkStyle = lowStk ? 'color:var(--danger);font-weight:700' : '';
+    const rowStyle = lowStk ? 'background:rgba(239,68,68,.05)' : '';
+    return `<tr style="${rowStyle}">
       <td>${b.fotoUrl?`<img class="thumb" src="${b.fotoUrl}" onerror="this.style.display='none'">`:`<div class="thumb-ph">🍺</div>`}</td>
-      <td><strong>${b.nome}</strong></td>
+      <td><strong>${b.nome}</strong>${lowStk?` <span style="font-size:11px;color:var(--danger)">⚠️ baixo</span>`:''}</td>
       <td class="ca" style="font-weight:700">${fmt(b.precoVenda)}</td>
       <td class="cd">${fmt(b.custoUnitario)}</td>
       <td class="cs">${m}%</td>
-      <td>${b.estoque}</td>
+      <td style="${stkStyle}">${b.estoque}</td>
       <td><span class="badge ${b.ativo?'bok':'bno'}">${b.ativo?'Ativo':'Inativo'}</span></td>
       <td style="display:flex;gap:5px">
         <button class="btn bs bsm" onclick="editBev(${b.id})">✏️ Editar</button>
@@ -580,7 +612,7 @@ function renderBevTable() {
   }).join('');
 }
 function openBevModal() {
-  ['mbev-id','mbev-n','mbev-p','mbev-c','mbev-s','mbev-url'].forEach(id=>document.getElementById(id).value='');
+  ['mbev-id','mbev-n','mbev-p','mbev-c','mbev-s','mbev-smin','mbev-url'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('mbev-prev').style.display='none';
   document.getElementById('mbev-ui').textContent='';
   document.getElementById('up-st').textContent='';
@@ -589,12 +621,13 @@ function openBevModal() {
 }
 function editBev(id) {
   const b = C.bevs.find(x=>x.id==id); if(!b) return;
-  document.getElementById('mbev-id').value = b.id;
-  document.getElementById('mbev-n').value  = b.nome;
-  document.getElementById('mbev-p').value  = b.precoVenda;
-  document.getElementById('mbev-c').value  = b.custoUnitario;
-  document.getElementById('mbev-s').value  = b.estoque;
-  document.getElementById('mbev-url').value= b.fotoUrl||'';
+  document.getElementById('mbev-id').value  = b.id;
+  document.getElementById('mbev-n').value   = b.nome;
+  document.getElementById('mbev-p').value   = b.precoVenda;
+  document.getElementById('mbev-c').value   = b.custoUnitario;
+  document.getElementById('mbev-s').value   = b.estoque;
+  document.getElementById('mbev-smin').value= b.estoqueMin || 0;
+  document.getElementById('mbev-url').value = b.fotoUrl||'';
   document.getElementById('up-st').textContent='';
   if (b.fotoUrl) { const img=document.getElementById('mbev-prev'); img.src=b.fotoUrl; img.style.display='block'; document.getElementById('mbev-ui').textContent='Foto atual'; }
   else { document.getElementById('mbev-prev').style.display='none'; document.getElementById('mbev-ui').textContent=''; }
@@ -631,10 +664,11 @@ function compressImg(file,px,q) {
 async function saveBev() {
   const id=document.getElementById('mbev-id').value, nome=document.getElementById('mbev-n').value.trim(),
         preco=document.getElementById('mbev-p').value, custo=document.getElementById('mbev-c').value,
-        stk=document.getElementById('mbev-s').value,   url=document.getElementById('mbev-url').value;
+        stk=document.getElementById('mbev-s').value,   smin=document.getElementById('mbev-smin').value,
+        url=document.getElementById('mbev-url').value;
   if (!nome||!preco||!custo) { toast('Preencha nome, preço e custo','err'); return; }
   load(true,'Salvando…');
-  const pl = { nome, precoVenda:preco, custoUnitario:custo, estoque:stk||0, fotoUrl:url };
+  const pl = { nome, precoVenda:preco, custoUnitario:custo, estoque:stk||0, estoqueMin:smin||0, fotoUrl:url };
   let r;
   if (id) { pl.action='updateBeverage'; pl.id=id; r=await apiPost(pl); }
   else    { pl.action='addBeverage';              r=await apiPost(pl); }
@@ -664,7 +698,9 @@ async function saveCard() {
   load(false);
   if (r.success) { toast('Cartão cadastrado!','ok'); closeCardM(); await reloadAll(); } else toast(r.error||'Erro','err');
 }
+let chUID = null;
 async function viewCardHist(uid,nome,tab) {
+  chUID = uid;
   load(true,'Carregando histórico…');
   const r = await api({ action:'getTransactions', uid });
   load(false);
@@ -672,11 +708,16 @@ async function viewCardHist(uid,nome,tab) {
   document.getElementById('ch-u').textContent = uid;
   document.getElementById('ch-t').textContent = fmt(tab);
   const rows = (r.transactions||[]).reverse();
-  document.getElementById('ch-tb').innerHTML = rows.map(t=>`
-    <tr><td>${t.data}</td><td style="color:var(--text2)">${t.hora}</td><td>${t.bebida}</td>
-    <td>${t.quantidade}×</td><td>${fmt(t.valorUnitario)}</td>
-    <td class="ca" style="font-weight:700">${fmt(t.valorTotal)}</td></tr>`).join('')
-    || `<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:18px">Sem histórico</td></tr>`;
+  document.getElementById('ch-tb').innerHTML = rows.map(t=>{
+    const estornado = t.tipo === 'ESTORNADO';
+    return `<tr style="${estornado?'opacity:.45;text-decoration:line-through':''}">
+      <td>${t.data}</td><td style="color:var(--text2)">${t.hora}</td><td>${t.bebida}</td>
+      <td>${t.quantidade}×</td><td>${fmt(t.valorUnitario)}</td>
+      <td class="ca" style="font-weight:700">${fmt(t.valorTotal)}</td>
+      <td><span class="badge ${estornado?'bno':'bok'}">${estornado?'Estornado':'OK'}</span></td>
+    </tr>`;
+  }).join('')
+    || `<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:18px">Sem histórico</td></tr>`;
   document.getElementById('m-ch').classList.add('show');
 }
 
@@ -752,7 +793,82 @@ async function doLancar() {
   } else toast(r.error||'Erro ao lançar','err');
 }
 
-// ── RELATÓRIOS ──────────────────────────────────────────────
+// ── ESTORNO ─────────────────────────────────────────────────
+async function doEstorno() {
+  if (!chUID) return;
+  const nome = document.getElementById('ch-n').textContent;
+  if (!confirm(`Estornar o último lançamento de ${nome}?\nEssa ação reverte o consumo e restaura o estoque.`)) return;
+  load(true,'Estornando…');
+  const r = await apiPost({ action:'estornar', uid:chUID });
+  load(false);
+  if (r.success) {
+    toast(`↩️ Estornado: ${r.qty}× ${r.bevName} — ${fmt(r.valor)}`,'ok');
+    document.getElementById('m-ch').classList.remove('show');
+    await reloadAll();
+  } else {
+    toast(r.error||'Erro ao estornar','err');
+  }
+}
+
+// ── EXPORTAR PDF ─────────────────────────────────────────────
+function exportPDF() {
+  if (!C.report) { toast('Carregue os relatórios primeiro','err'); return; }
+  const s  = C.report.summary;
+  const now = new Date().toLocaleString('pt-BR');
+
+  const rows_bev = C.report.byBeverage.map((b,i) => {
+    const m = b.vendido>0 ? ((b.lucro/b.vendido)*100).toFixed(1) : '0';
+    return `<tr>
+      <td>${i+1}</td><td>${b.nome}</td><td>${b.qty}</td>
+      <td>R$ ${b.vendido.toFixed(2)}</td><td>R$ ${b.custo.toFixed(2)}</td>
+      <td>R$ ${b.lucro.toFixed(2)}</td><td>${m}%</td>
+    </tr>`;
+  }).join('');
+
+  const rows_card = C.report.byCard.map((c,i) => `
+    <tr><td>${i+1}</td><td>${c.nome}</td><td>${c.qtd}</td><td>R$ ${c.tabTotal.toFixed(2)}</td></tr>
+  `).join('');
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>Relatório Bar dos Bodes</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:13px;color:#111;padding:30px}
+    h1{font-size:20px;margin-bottom:4px} .sub{color:#666;font-size:12px;margin-bottom:24px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    .card{border:1px solid #ddd;border-radius:8px;padding:14px}
+    .card-l{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}
+    .card-v{font-size:22px;font-weight:700;margin-top:4px}
+    .amber{color:#d97706} .green{color:#16a34a} .red{color:#dc2626} .blue{color:#2563eb}
+    h2{font-size:14px;margin:20px 0 10px;border-bottom:2px solid #f59e0b;padding-bottom:6px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{text-align:left;padding:7px 10px;background:#f5f5f5;border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase}
+    td{padding:7px 10px;border-bottom:1px solid #eee}
+    tr:hover td{background:#fafafa}
+    .footer{margin-top:32px;font-size:11px;color:#aaa;text-align:center}
+    @media print{body{padding:10px}.footer{position:fixed;bottom:0;width:100%}}
+  </style></head><body>
+  <h1>🐐 Bar dos Bodes — Relatório do Evento</h1>
+  <div class="sub">Gerado em ${now}</div>
+  <div class="grid">
+    <div class="card"><div class="card-l">Total Vendido</div><div class="card-v amber">R$ ${s.totalVendido.toFixed(2)}</div></div>
+    <div class="card"><div class="card-l">Custo Total</div><div class="card-v red">R$ ${s.totalCusto.toFixed(2)}</div></div>
+    <div class="card"><div class="card-l">Lucro Bruto</div><div class="card-v green">R$ ${s.lucro.toFixed(2)}</div></div>
+    <div class="card"><div class="card-l">Margem / Transações</div><div class="card-v blue">${s.margem}% · ${s.totalTransacoes}</div></div>
+  </div>
+  <h2>📦 Por Bebida</h2>
+  <table><thead><tr><th>#</th><th>Bebida</th><th>Qtd</th><th>Receita</th><th>Custo</th><th>Lucro</th><th>Margem</th></tr></thead>
+  <tbody>${rows_bev}</tbody></table>
+  <h2>💳 Tab por Cartão</h2>
+  <table><thead><tr><th>#</th><th>Nome</th><th>Itens</th><th>Tab Total</th></tr></thead>
+  <tbody>${rows_card}</tbody></table>
+  <div class="footer">Bar dos Bodes — Sistema de Controle de Consumo</div>
+  <script>window.onload=()=>window.print()<\/script>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
 function renderRelGeral() {
   if (!C.report) return;
   const s=C.report.summary;
