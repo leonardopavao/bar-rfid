@@ -287,6 +287,26 @@ function showToast(msg, type) {
 }
 function fmt(v) { return 'R$ ' + Number(v).toFixed(2).replace('.', ','); }
 
+// ── SOM DE CONFIRMAÇÃO ───────────────────────────────────────
+function playSuccess() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // dois bips ascendentes
+    [[660, 0, 0.12], [880, 0.13, 0.18]].forEach(([freq, start, end]) => {
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.25, ctx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + end);
+      osc.start(ctx.currentTime + start);
+      osc.stop(ctx.currentTime + end);
+    });
+  } catch(e) { /* sem suporte — ignora */ }
+}
+
 // ── NFC ──────────────────────────────────────────────────
 async function startNFC() {
   if (!('NDEFReader' in window)) {
@@ -420,6 +440,7 @@ async function doConsume() {
     const res = await apiPost({ action:'consume', uid:curCard.uid, beverageId:curBev.id, qty:curQty });
     loading(false); btn.disabled = false;
     if (!res.success) { showToast(res.error || 'Erro ao lançar', 'err'); return; }
+    playSuccess();
     document.getElementById('suc-detail').textContent = `${curQty}× ${curBev.nome}  •  ${fmt(curBev.precoVenda * curQty)}`;
     document.getElementById('suc-tab').textContent    = fmt(res.card.tabTotal);
     showScreen('success-screen');
