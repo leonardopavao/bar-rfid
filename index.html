@@ -2,741 +2,433 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Bar dos Bodes</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{
-  --bg:#0d0d0d;--card:#1c1c1e;--card2:#2c2c2e;
-  --accent:#f59e0b;--accent-d:#d97706;
-  --text:#fff;--text2:#aeaeb2;
-  --green:#30d158;--red:#ff453a;--blue:#0a84ff;
-  --border:#3a3a3c;
+:root {
+  --bg:      #0d0d0d;
+  --surface: #1a1a1a;
+  --amber:   #f59e0b;
+  --text:    #f5f5f5;
+  --text2:   #9ca3af;
+  --success: #22c55e;
+  --danger:  #ef4444;
+  --border:  #2a2a2a;
 }
-body{background:var(--bg);color:var(--text);font-family:-apple-system,'Segoe UI',sans-serif;min-height:100vh;overflow-x:hidden}
-.tela{display:none;min-height:100vh;flex-direction:column}
-.tela.ativa{display:flex}
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
-.hdr h1{font-size:18px;font-weight:700}
-.btn-back{background:none;border:none;color:var(--accent);font-size:15px;cursor:pointer;padding:4px 0;font-weight:600}
-.hdr-right{color:var(--text2);font-size:13px}
-.btn{border:none;border-radius:14px;padding:18px;font-size:16px;font-weight:600;cursor:pointer;width:100%;transition:opacity .15s}
-.btn:active{opacity:.75}
-.btn-gold{background:var(--accent);color:#000}
-.btn-ghost{background:var(--card2);color:var(--text)}
-.btn-green{background:var(--green);color:#000}
-.inp{background:var(--card2);border:1.5px solid var(--border);border-radius:12px;padding:16px;font-size:16px;color:var(--text);width:100%;outline:none}
-.inp:focus{border-color:var(--accent)}
-.lbl{color:var(--text2);font-size:13px;margin-bottom:8px;display:block;font-weight:500}
-.campo{margin-bottom:16px}
-.pad{padding:16px}
-.gap{display:flex;flex-direction:column;gap:12px;padding:16px}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; height:100dvh; overflow:hidden; }
 
-/* HOME */
-#tela-home{align-items:center;justify-content:center;text-align:center;padding:40px 24px}
-.home-logo{width:100px;height:100px;border-radius:50%;object-fit:cover;margin-bottom:12px;border:3px solid var(--accent)}
-.logo-title{font-size:28px;font-weight:800;color:var(--accent);letter-spacing:1px}
-.logo-sub{color:var(--text2);font-size:13px;margin-top:4px;margin-bottom:40px}
-.nfc-circle{width:180px;height:180px;border-radius:50%;background:var(--card);border:3px solid var(--accent);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 16px;transition:all .2s}
-.nfc-circle.scanning{border-color:var(--green);animation:pulse 1.5s infinite}
-@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(48,209,88,.5)}70%{box-shadow:0 0 0 24px rgba(48,209,88,0)}100%{box-shadow:0 0 0 0 rgba(48,209,88,0)}}
-.nfc-ico{font-size:56px}
-.nfc-txt{font-size:12px;font-weight:600;color:var(--text2);margin-top:6px;white-space:pre-line;text-align:center}
-.nfc-status{margin-top:12px;font-size:14px;color:var(--text2);min-height:20px;text-align:center;padding:0 16px}
-.nfc-status.ok{color:var(--green)}
-.nfc-status.err{color:var(--red)}
-.home-admin{margin-top:40px;color:var(--text2);font-size:14px;cursor:pointer;text-decoration:underline}
+/* ── SCREENS ── */
+.screen { position:absolute; inset:0; display:none; flex-direction:column; }
+.screen.active { display:flex; }
 
-/* CARTÃO */
-.saldo-card{background:linear-gradient(135deg,var(--accent-d),var(--accent));border-radius:20px;padding:28px 24px;margin:16px;color:#000}
-.sl-label{font-size:12px;font-weight:600;opacity:.65;text-transform:uppercase;letter-spacing:.5px}
-.sl-valor{font-size:44px;font-weight:800;margin:4px 0;letter-spacing:-1px;line-height:1}
-.sl-nome{font-size:20px;font-weight:700;margin-top:8px}
-.sl-uid{font-size:10px;opacity:.55;margin-top:4px;font-family:monospace}
-.acoes{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 16px}
-.acao{background:var(--card);border:none;border-radius:16px;padding:20px 12px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:opacity .15s;width:100%}
-.acao:active{opacity:.7}
-.acao-ico{font-size:32px}
-.acao-lbl{font-size:13px;font-weight:600;color:var(--text)}
-.acao-consumir{border:2px solid var(--accent)}
+/* ── HEADER ── */
+.hdr { background:var(--surface); padding:12px 16px; display:flex; align-items:center; justify-content:space-between; border-bottom:2px solid var(--amber); flex-shrink:0; }
+.hdr h1 { font-size:15px; font-weight:800; color:var(--amber); letter-spacing:2px; }
+.hdr-back { background:none; border:none; color:var(--text2); font-size:22px; cursor:pointer; padding:4px 10px; }
+.hdr-right { color:var(--text2); font-size:13px; }
 
-/* BEBIDAS */
-.bebidas-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px}
-.beb{background:var(--card);border-radius:16px;overflow:hidden;cursor:pointer;transition:all .15s;border:2px solid transparent}
-.beb:active{opacity:.8}
-.beb-img-wrap{width:100%;aspect-ratio:1;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:52px;overflow:hidden}
-.beb-img-wrap img{width:100%;height:100%;object-fit:cover}
-.beb-info{padding:10px 12px 14px}
-.beb-nome{font-size:14px;font-weight:600;line-height:1.2}
-.beb-preco{color:var(--accent);font-size:15px;font-weight:700;margin-top:4px}
-.beb-est{color:var(--text2);font-size:11px;margin-top:3px}
-.beb-sem{opacity:.4}
+/* ── HOME ── */
+#home { justify-content:center; align-items:center; gap:28px; text-align:center; padding:32px 24px; }
+.logo-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; }
+.logo-img  { width:110px; height:110px; border-radius:18px; object-fit:contain; }
+.logo-title { font-size:26px; font-weight:900; color:var(--amber); letter-spacing:3px; }
+.logo-sub   { color:var(--text2); font-size:13px; }
 
-/* CONFIRMAÇÃO */
-.conf-center{text-align:center;padding:24px 16px 16px}
-.conf-img{width:110px;height:110px;border-radius:18px;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:64px;margin:0 auto 14px;overflow:hidden}
-.conf-img img{width:100%;height:100%;object-fit:cover}
-.conf-nome{font-size:22px;font-weight:700}
-.conf-preco{color:var(--accent);font-size:16px;margin-top:4px}
-.qtd-ctrl{display:flex;align-items:center;justify-content:center;gap:28px;margin:24px 0}
-.qtd-btn{width:54px;height:54px;border-radius:50%;border:none;font-size:30px;cursor:pointer;font-weight:600}
-.qtd-m{background:var(--card2);color:var(--text)}
-.qtd-p{background:var(--accent);color:#000}
-.qtd-n{font-size:38px;font-weight:800;min-width:64px;text-align:center}
-.total-box{background:var(--card);border-radius:16px;padding:16px 20px;margin:0 16px 16px}
-.total-row{display:flex;justify-content:space-between;align-items:center}
-.total-lbl{color:var(--text2);font-size:14px}
-.total-val{font-size:30px;font-weight:800;color:var(--accent)}
-.saldo-rest{font-size:13px;margin-top:10px;color:var(--text2)}
-.saldo-rest.insuf{color:var(--red)}
+.nfc-btn { background:var(--amber); color:#000; border:none; border-radius:50%; width:150px; height:150px;
+  cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:6px; box-shadow:0 0 32px rgba(245,158,11,.4); transition:transform .15s; }
+.nfc-btn:active { transform:scale(.93); }
+.nfc-btn .icon  { font-size:54px; line-height:1; }
+.nfc-btn .label { font-size:12px; font-weight:700; letter-spacing:1px; }
+.nfc-btn.scanning { animation:pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{box-shadow:0 0 32px rgba(245,158,11,.4)} 50%{box-shadow:0 0 56px rgba(245,158,11,.85)} }
+.status { color:var(--text2); font-size:14px; min-height:18px; }
 
-/* RECARGA */
-.vals-rapidos{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px 16px}
-.vbtn{background:var(--card);border:2px solid var(--border);border-radius:12px;padding:16px 8px;text-align:center;cursor:pointer;font-size:18px;font-weight:700;color:var(--text);transition:all .15s}
-.vbtn.on{border-color:var(--accent);background:rgba(245,158,11,.12);color:var(--accent)}
+/* ── CARD SCREEN ── */
+#card-screen { flex-direction:column; }
+.card-info { background:var(--surface); margin:14px; border-radius:16px; padding:22px; border:1px solid var(--border); flex-shrink:0; }
+.card-name { font-size:26px; font-weight:800; color:var(--amber); }
+.card-uid  { font-size:11px; color:var(--text2); margin-top:3px; font-family:monospace; }
+.tab-row   { display:flex; justify-content:space-between; align-items:flex-end; margin-top:18px; padding-top:18px; border-top:1px solid var(--border); }
+.tab-label { color:var(--text2); font-size:13px; }
+.tab-val   { font-size:30px; font-weight:900; color:var(--amber); }
+.tab-icon  { font-size:42px; line-height:1; }
+.action-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 14px; flex-shrink:0; }
+.btn-consume { background:var(--amber); color:#000; border:none; border-radius:12px; padding:18px; font-size:16px; font-weight:700; cursor:pointer; }
+.btn-hist    { background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:12px; padding:18px; font-size:15px; cursor:pointer; }
 
-/* HISTÓRICO */
-.hist-item{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
-.hist-item:last-child{border-bottom:none}
-.hist-beb{font-size:15px;font-weight:600}
-.hist-dthr{font-size:12px;color:var(--text2);margin-top:3px}
-.hist-val{font-size:16px;font-weight:700;text-align:right}
-.hist-val.c{color:var(--red)}
-.hist-val.r{color:var(--green)}
+/* ── BEVERAGES ── */
+#bev-screen { flex-direction:column; }
+.bev-scroll { flex:1; overflow-y:auto; padding:12px; }
+.bev-grid   { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.bev-card   { background:var(--surface); border-radius:12px; overflow:hidden; border:2px solid var(--border); cursor:pointer; transition:border-color .15s; }
+.bev-card:active { border-color:var(--amber); }
+.bev-img    { width:100%; aspect-ratio:1; object-fit:cover; background:#222; display:block; }
+.bev-ph     { width:100%; aspect-ratio:1; background:#222; display:flex; align-items:center; justify-content:center; font-size:52px; }
+.bev-info   { padding:10px; }
+.bev-nome   { font-size:14px; font-weight:600; }
+.bev-preco  { font-size:16px; font-weight:800; color:var(--amber); margin-top:3px; }
+.bev-stk    { font-size:11px; color:var(--text2); margin-top:2px; }
 
-/* RELATÓRIO */
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px 8px}
-.stat{background:var(--card);border-radius:14px;padding:16px}
-.stat-lbl{font-size:12px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.4px}
-.stat-val{font-size:22px;font-weight:800;margin-top:6px}
-.verde{color:var(--green)}.amarelo{color:var(--accent)}.vermelho{color:var(--red)}.azul{color:var(--blue)}
-.sec-title{padding:16px 16px 8px;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
-.rel-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)}
-.rel-row:last-child{border-bottom:none}
-.rel-nome{font-size:15px;font-weight:600}
-.rel-qtd{font-size:12px;color:var(--text2);margin-top:2px}
-.rel-val{font-size:15px;font-weight:700;color:var(--accent)}
-.rel-saldo-val{font-size:14px;font-weight:700}
+/* ── CONFIRM ── */
+#confirm-screen { flex-direction:column; }
+.confirm-body  { flex:1; padding:14px; overflow-y:auto; display:flex; flex-direction:column; gap:14px; }
+.confirm-card  { background:var(--surface); border-radius:14px; padding:20px; border:1px solid var(--border); }
+.confirm-lbl   { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.confirm-val   { font-size:22px; font-weight:800; color:var(--amber); }
+.confirm-rows  { display:flex; flex-direction:column; gap:14px; margin-top:16px; padding-top:16px; border-top:1px solid var(--border); }
+.cRow          { display:flex; justify-content:space-between; align-items:center; }
+.cRow-l        { color:var(--text2); font-size:14px; }
+.cRow-v        { font-size:16px; font-weight:600; }
+.qty-ctl       { display:flex; align-items:center; gap:14px; background:#2a2a2a; border-radius:10px; padding:8px 14px; }
+.qty-btn       { background:var(--amber); color:#000; border:none; border-radius:6px; width:32px; height:32px; font-size:22px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.qty-num       { font-size:20px; font-weight:800; min-width:28px; text-align:center; }
+.confirm-total { background:rgba(245,158,11,.1); border-radius:12px; padding:16px 20px; border:1px solid rgba(245,158,11,.3); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+.ct-label      { color:var(--text2); font-size:14px; }
+.ct-val        { font-size:26px; font-weight:900; color:var(--amber); }
+.confirm-btns  { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:14px; flex-shrink:0; }
+.btn-cancel    { background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:12px; padding:18px; font-size:15px; cursor:pointer; }
+.btn-ok        { background:var(--amber); color:#000; border:none; border-radius:12px; padding:18px; font-size:16px; font-weight:700; cursor:pointer; }
+.btn-ok:disabled { opacity:.5; }
 
-/* RANKING */
-.rank-item{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
-.rank-item:last-child{border-bottom:none}
-.rank-pos{font-size:22px;font-weight:800;min-width:40px;text-align:center}
-.rank-pos.gold{color:#FFD700}
-.rank-pos.silver{color:#C0C0C0}
-.rank-pos.bronze{color:#CD7F32}
-.rank-pos.other{color:var(--text2)}
-.rank-info{flex:1;margin-left:12px}
-.rank-nome{font-size:15px;font-weight:700}
-.rank-qtd{font-size:12px;color:var(--text2);margin-top:2px}
-.rank-val{font-size:16px;font-weight:800;color:var(--accent);text-align:right}
+/* ── SUCCESS ── */
+#success-screen { justify-content:center; align-items:center; text-align:center; gap:20px; padding:32px; }
+.suc-icon   { font-size:72px; }
+.suc-title  { font-size:24px; font-weight:800; color:var(--success); }
+.suc-detail { color:var(--text2); font-size:15px; }
+.suc-tab    { font-size:34px; font-weight:900; color:var(--amber); }
+.suc-sub    { color:var(--text2); font-size:13px; margin-top:-10px; }
+.suc-btn    { background:var(--amber); color:#000; border:none; border-radius:12px; padding:18px 44px; font-size:16px; font-weight:700; cursor:pointer; margin-top:8px; }
 
-/* GRÁFICO */
-.grafico-wrap{padding:16px}
-.barra-row{margin-bottom:14px}
-.barra-label{font-size:13px;color:var(--text2);margin-bottom:4px;display:flex;justify-content:space-between}
-.barra-bg{background:var(--card2);border-radius:8px;height:28px;overflow:hidden}
-.barra-fill{height:100%;background:linear-gradient(90deg,var(--accent-d),var(--accent));border-radius:8px;display:flex;align-items:center;padding-left:8px;font-size:12px;font-weight:700;color:#000;transition:width .6s ease;min-width:2px}
+/* ── HISTORY ── */
+#hist-screen { flex-direction:column; }
+.hist-list   { flex:1; overflow-y:auto; padding:12px; }
+.hist-item   { background:var(--surface); border-radius:10px; padding:14px 16px; margin-bottom:8px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
+.hist-bev    { font-size:15px; font-weight:600; }
+.hist-time   { font-size:12px; color:var(--text2); margin-top:3px; }
+.hist-v      { font-size:16px; font-weight:800; color:var(--amber); }
+.hist-empty  { text-align:center; color:var(--text2); padding:48px 24px; font-size:15px; }
 
-/* ADMIN */
-.adm-btn{background:var(--card);border:none;border-radius:16px;padding:20px;display:flex;align-items:center;gap:16px;cursor:pointer;width:100%;transition:opacity .15s;margin-bottom:12px}
-.adm-btn:active{opacity:.7}
-.adm-ico{font-size:32px}
-.adm-info{text-align:left}
-.adm-titulo{font-size:16px;font-weight:600;color:var(--text)}
-.adm-desc{font-size:13px;color:var(--text2);margin-top:2px}
-
-/* SENHA */
-.senha-wrap{display:flex;align-items:center;justify-content:center;flex:1}
-.senha-card{background:var(--card);border-radius:20px;padding:32px 24px;width:100%;max-width:340px;margin:16px;text-align:center}
-.senha-ico{font-size:48px;margin-bottom:12px}
-.senha-title{font-size:20px;font-weight:700;margin-bottom:24px}
-
-/* TOAST / LOADING */
-.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:14px 24px;border-radius:30px;font-size:14px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;max-width:88vw;pointer-events:none;text-align:center}
-.toast.show{opacity:1}
-.toast.ok{background:var(--green);color:#000}
-.toast.err{background:var(--red)}
-.loading{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:998}
-.loading.show{display:flex}
-.spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.empty{text-align:center;padding:48px 24px;color:var(--text2)}
-.empty-ico{font-size:48px;margin-bottom:12px}
+/* ── LOADER / TOAST ── */
+.loader { position:fixed; inset:0; background:rgba(0,0,0,.8); display:none; align-items:center; justify-content:center; z-index:100; flex-direction:column; gap:14px; }
+.loader.on { display:flex; }
+.spinner { width:46px; height:46px; border:4px solid #333; border-top-color:var(--amber); border-radius:50%; animation:spin .75s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg) } }
+.loader-txt { color:var(--text2); font-size:14px; }
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:var(--surface); color:var(--text); padding:12px 24px; border-radius:10px; font-size:14px; border:1px solid var(--border); z-index:200; opacity:0; transition:opacity .3s; pointer-events:none; text-align:center; max-width:80vw; white-space:nowrap; }
+.toast.on  { opacity:1; }
+.toast.err { border-color:var(--danger); color:var(--danger); }
+.toast.ok  { border-color:var(--success); color:var(--success); }
 </style>
 </head>
 <body>
 
-<!-- HOME -->
-<div id="tela-home" class="tela ativa">
-  <img src="logo.png" class="home-logo" alt="Logo" onerror="this.style.display='none'">
-  <div class="logo-title">BAR DOS BODES</div>
-  <div class="logo-sub">A.·.R.·.L.·.S.·. Monte Sinai — Votuporanga</div>
-  <div class="nfc-circle" id="nfc-circle" onclick="ativarNFC()">
-    <div class="nfc-ico">📡</div>
-    <div class="nfc-txt" id="nfc-btn-txt">TOQUE PARA
-ATIVAR NFC</div>
+<!-- ══ HOME ══ -->
+<div class="screen active" id="home">
+  <div class="logo-wrap">
+    <img src="logo.png" class="logo-img" onerror="this.style.display='none'">
+    <div class="logo-title">BAR DOS BODES</div>
+    <div class="logo-sub">Sistema de Controle de Consumo</div>
   </div>
-  <div class="nfc-status" id="nfc-status">NFC desativado</div>
-  <div class="home-admin" onclick="irParaAdmin()">⚙️ Área Administrativa</div>
+  <button class="nfc-btn" id="nfc-btn" onclick="startNFC()">
+    <span class="icon">📡</span>
+    <span class="label">INICIAR NFC</span>
+  </button>
+  <div class="status" id="status">Toque para ativar o NFC</div>
 </div>
 
-<!-- CARTÃO -->
-<div id="tela-cartao" class="tela">
-  <div class="saldo-card">
-    <div class="sl-label">Saldo disponível</div>
-    <div class="sl-valor" id="ct-saldo">R$ 0,00</div>
-    <div class="sl-nome" id="ct-nome">—</div>
-    <div class="sl-uid" id="ct-uid">—</div>
-  </div>
-  <div class="acoes">
-    <button class="acao acao-consumir" onclick="irParaBebidas()"><div class="acao-ico">🍺</div><div class="acao-lbl">Consumir</div></button>
-    <button class="acao" onclick="irParaRecarga()"><div class="acao-ico">💳</div><div class="acao-lbl">Recarregar</div></button>
-    <button class="acao" onclick="irParaHistorico()"><div class="acao-ico">📋</div><div class="acao-lbl">Histórico</div></button>
-    <button class="acao" onclick="voltarHome()"><div class="acao-ico">📡</div><div class="acao-lbl">Novo scan</div></button>
-  </div>
-</div>
-
-<!-- BEBIDAS -->
-<div id="tela-bebidas" class="tela">
+<!-- ══ CARTÃO ══ -->
+<div class="screen" id="card-screen">
   <div class="hdr">
-    <button class="btn-back" onclick="mostrarTela('tela-cartao')">← Voltar</button>
-    <h1>Escolha a bebida</h1>
-    <div class="hdr-right" id="beb-saldo-hdr">R$ 0,00</div>
+    <button class="hdr-back" onclick="goHome()">←</button>
+    <h1>BAR DOS BODES</h1>
+    <span class="hdr-right">🐐</span>
   </div>
-  <div class="scroll">
-    <div class="bebidas-grid" id="bebidas-grid"><div class="empty"><div class="empty-ico">⏳</div>Carregando...</div></div>
+  <div class="card-info">
+    <div class="card-name" id="card-name">—</div>
+    <div class="card-uid"  id="card-uid"></div>
+    <div class="tab-row">
+      <div>
+        <div class="tab-label">Consumo acumulado</div>
+        <div class="tab-val" id="card-tab">R$ 0,00</div>
+      </div>
+      <div class="tab-icon">🍺</div>
+    </div>
+  </div>
+  <div class="action-row">
+    <button class="btn-consume" onclick="showBeverages()">🛒 Consumir</button>
+    <button class="btn-hist"    onclick="showHistory()">📋 Histórico</button>
   </div>
 </div>
 
-<!-- CONFIRMAÇÃO -->
-<div id="tela-confirmacao" class="tela">
+<!-- ══ BEBIDAS ══ -->
+<div class="screen" id="bev-screen">
   <div class="hdr">
-    <button class="btn-back" onclick="mostrarTela('tela-bebidas')">← Voltar</button>
-    <h1>Confirmar consumo</h1>
-    <div></div>
+    <button class="hdr-back" onclick="showScreen('card-screen')">←</button>
+    <h1>ESCOLHA A BEBIDA</h1>
+    <span class="hdr-right" id="bev-hdr-nome"></span>
   </div>
-  <div class="scroll">
-    <div class="conf-center">
-      <div class="conf-img" id="conf-img">🍺</div>
-      <div class="conf-nome" id="conf-nome">—</div>
-      <div class="conf-preco" id="conf-preco">—</div>
-    </div>
-    <div class="qtd-ctrl">
-      <button class="qtd-btn qtd-m" onclick="ajustarQtd(-1)">−</button>
-      <div class="qtd-n" id="conf-qtd">1</div>
-      <button class="qtd-btn qtd-p" onclick="ajustarQtd(1)">+</button>
-    </div>
-    <div class="total-box">
-      <div class="total-row"><div class="total-lbl">Total</div><div class="total-val" id="conf-total">R$ 0,00</div></div>
-      <div class="saldo-rest" id="conf-saldo-rest"></div>
-    </div>
-    <div class="gap">
-      <button class="btn btn-gold" id="conf-btn-ok" onclick="confirmarConsumo()">✅ Confirmar</button>
-      <button class="btn btn-ghost" onclick="mostrarTela('tela-bebidas')">Cancelar</button>
-    </div>
+  <div class="bev-scroll">
+    <div class="bev-grid" id="bev-grid"></div>
   </div>
 </div>
 
-<!-- RECARGA -->
-<div id="tela-recarga" class="tela">
+<!-- ══ CONFIRMAR ══ -->
+<div class="screen" id="confirm-screen">
   <div class="hdr">
-    <button class="btn-back" onclick="mostrarTela('tela-cartao')">← Voltar</button>
-    <h1>Recarregar saldo</h1>
-    <div></div>
+    <button class="hdr-back" onclick="showScreen('bev-screen')">←</button>
+    <h1>CONFIRMAR</h1>
+    <span></span>
   </div>
-  <div class="scroll">
-    <div class="pad">
-      <div class="saldo-card" style="margin:0 0 16px">
-        <div class="sl-label">Saldo atual</div>
-        <div class="sl-valor" id="rec-saldo-atual">R$ 0,00</div>
-        <div class="sl-nome" id="rec-nome">—</div>
+  <div class="confirm-body">
+    <div class="confirm-card">
+      <div class="confirm-lbl">Cartão</div>
+      <div class="confirm-val" id="cf-nome"></div>
+      <div class="confirm-rows">
+        <div class="cRow">
+          <span class="cRow-l">Bebida</span>
+          <span class="cRow-v" id="cf-bev"></span>
+        </div>
+        <div class="cRow">
+          <span class="cRow-l">Quantidade</span>
+          <div class="qty-ctl">
+            <button class="qty-btn" onclick="chgQty(-1)">−</button>
+            <span class="qty-num" id="qty-num">1</span>
+            <button class="qty-btn" onclick="chgQty(1)">+</button>
+          </div>
+        </div>
+        <div class="cRow">
+          <span class="cRow-l">Valor unitário</span>
+          <span class="cRow-v" id="cf-unit"></span>
+        </div>
       </div>
     </div>
-    <div class="sec-title">Valores rápidos</div>
-    <div class="vals-rapidos">
-      <div class="vbtn" onclick="selecionarValor(10)">R$ 10</div>
-      <div class="vbtn" onclick="selecionarValor(20)">R$ 20</div>
-      <div class="vbtn" onclick="selecionarValor(30)">R$ 30</div>
-      <div class="vbtn" onclick="selecionarValor(50)">R$ 50</div>
-      <div class="vbtn" onclick="selecionarValor(100)">R$ 100</div>
-      <div class="vbtn" onclick="selecionarValor(200)">R$ 200</div>
-    </div>
-    <div class="pad" style="padding-top:0">
-      <div class="campo">
-        <label class="lbl">Ou digite o valor (R$)</label>
-        <input class="inp" id="rec-valor-inp" type="number" min="0" step="0.01" placeholder="0,00" oninput="onRecargaInput()">
-      </div>
-      <button class="btn btn-green" onclick="confirmarRecarga()">💳 Confirmar Recarga</button>
-    </div>
+  </div>
+  <div class="confirm-total">
+    <span class="ct-label">Total a lançar</span>
+    <span class="ct-val" id="cf-total">R$ 0,00</span>
+  </div>
+  <div class="confirm-btns">
+    <button class="btn-cancel" onclick="showScreen('bev-screen')">Cancelar</button>
+    <button class="btn-ok" id="btn-ok" onclick="doConsume()">Confirmar ✓</button>
   </div>
 </div>
 
-<!-- HISTÓRICO -->
-<div id="tela-historico" class="tela">
+<!-- ══ SUCESSO ══ -->
+<div class="screen" id="success-screen">
+  <div class="suc-icon">✅</div>
+  <div class="suc-title">Lançado!</div>
+  <div class="suc-detail" id="suc-detail"></div>
+  <div class="suc-tab"    id="suc-tab"></div>
+  <div class="suc-sub">consumo acumulado</div>
+  <button class="suc-btn" onclick="goHome()">Nova leitura</button>
+</div>
+
+<!-- ══ HISTÓRICO ══ -->
+<div class="screen" id="hist-screen">
   <div class="hdr">
-    <button class="btn-back" onclick="mostrarTela('tela-cartao')">← Voltar</button>
-    <h1 id="hist-title">Histórico</h1>
-    <div></div>
+    <button class="hdr-back" onclick="showScreen('card-screen')">←</button>
+    <h1>HISTÓRICO</h1>
+    <span class="hdr-right" id="hist-hdr-nome"></span>
   </div>
-  <div class="scroll"><div id="hist-lista"><div class="empty"><div class="empty-ico">⏳</div>Carregando...</div></div></div>
+  <div class="hist-list" id="hist-list"></div>
 </div>
 
-<!-- ADMIN SENHA -->
-<div id="tela-admin-senha" class="tela">
-  <div class="hdr">
-    <button class="btn-back" onclick="voltarHome()">← Início</button>
-    <h1>Administrativo</h1>
-    <div></div>
-  </div>
-  <div class="senha-wrap">
-    <div class="senha-card">
-      <div class="senha-ico">🔐</div>
-      <div class="senha-title">Digite a senha</div>
-      <div class="campo">
-        <input class="inp" id="senha-inp" type="password" placeholder="••••" style="text-align:center;font-size:24px;letter-spacing:8px">
-      </div>
-      <button class="btn btn-gold" onclick="validarSenha()">Entrar</button>
-    </div>
-  </div>
+<!-- loader -->
+<div class="loader" id="loader">
+  <div class="spinner"></div>
+  <div class="loader-txt" id="loader-txt">Aguarde…</div>
 </div>
-
-<!-- ADMIN MENU -->
-<div id="tela-admin-menu" class="tela">
-  <div class="hdr">
-    <button class="btn-back" onclick="voltarHome()">← Início</button>
-    <h1>Administrativo</h1>
-    <div></div>
-  </div>
-  <div class="scroll pad">
-    <button class="adm-btn" onclick="irParaRelatorio()"><div class="adm-ico">📊</div><div class="adm-info"><div class="adm-titulo">Relatório Geral</div><div class="adm-desc">Consumo, recargas e saldos</div></div></button>
-    <button class="adm-btn" onclick="irParaRanking()"><div class="adm-ico">🏆</div><div class="adm-info"><div class="adm-titulo">Ranking de Consumo</div><div class="adm-desc">Quem mais consumiu no evento</div></div></button>
-    <button class="adm-btn" onclick="irParaGrafico()"><div class="adm-ico">📈</div><div class="adm-info"><div class="adm-titulo">Gráfico por Horário</div><div class="adm-desc">Pico de vendas por hora</div></div></button>
-    <button class="adm-btn" onclick="irParaCadastro()"><div class="adm-ico">🆕</div><div class="adm-info"><div class="adm-titulo">Cadastrar Cartão</div><div class="adm-desc">Aproxime o cartão e cadastre</div></div></button>
-    <button class="adm-btn" onclick="irParaEstoque()"><div class="adm-ico">📦</div><div class="adm-info"><div class="adm-titulo">Entrada de Estoque</div><div class="adm-desc">Registrar chegada de bebidas</div></div></button>
-  </div>
-</div>
-
-<!-- RELATÓRIO -->
-<div id="tela-relatorio" class="tela">
-  <div class="hdr">
-    <button class="btn-back" onclick="mostrarTela('tela-admin-menu')">← Voltar</button>
-    <h1>Relatório Geral</h1>
-    <div></div>
-  </div>
-  <div class="scroll">
-    <div style="padding:8px"></div>
-    <div class="stat-grid">
-      <div class="stat"><div class="stat-lbl">Total consumido</div><div class="stat-val verde" id="rel-consumo">—</div></div>
-      <div class="stat"><div class="stat-lbl">Total recarregado</div><div class="stat-val azul" id="rel-recargas">—</div></div>
-      <div class="stat" style="grid-column:span 2"><div class="stat-lbl">Saldo em aberto</div><div class="stat-val amarelo" id="rel-saldo">—</div></div>
-    </div>
-    <div class="sec-title">Consumo por bebida</div>
-    <div id="rel-bebidas" style="background:var(--card);border-radius:16px;margin:0 16px 12px"></div>
-    <div class="sec-title">Saldo por cartão</div>
-    <div id="rel-cartoes" style="background:var(--card);border-radius:16px;margin:0 16px 32px"></div>
-  </div>
-</div>
-
-<!-- RANKING -->
-<div id="tela-ranking" class="tela">
-  <div class="hdr">
-    <button class="btn-back" onclick="mostrarTela('tela-admin-menu')">← Voltar</button>
-    <h1>🏆 Ranking</h1>
-    <div></div>
-  </div>
-  <div class="scroll">
-    <div class="sec-title">Maior consumo do evento</div>
-    <div id="rank-lista" style="background:var(--card);border-radius:16px;margin:0 16px 32px">
-      <div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>
-    </div>
-  </div>
-</div>
-
-<!-- GRÁFICO POR HORÁRIO -->
-<div id="tela-grafico" class="tela">
-  <div class="hdr">
-    <button class="btn-back" onclick="mostrarTela('tela-admin-menu')">← Voltar</button>
-    <h1>📈 Vendas por hora</h1>
-    <div></div>
-  </div>
-  <div class="scroll">
-    <div class="sec-title">Total vendido por horário</div>
-    <div class="grafico-wrap" id="grafico-wrap">
-      <div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>
-    </div>
-  </div>
-</div>
-
-<!-- CADASTRO -->
-<div id="tela-cadastro" class="tela">
-  <div class="hdr">
-    <button class="btn-back" onclick="mostrarTela('tela-admin-menu')">← Voltar</button>
-    <h1>Cadastrar Cartão</h1>
-    <div></div>
-  </div>
-  <div class="scroll pad">
-    <div style="background:var(--card);border-radius:16px;padding:16px;margin-bottom:16px;text-align:center">
-      <div style="font-size:13px;color:var(--text2);margin-bottom:8px">UID lido</div>
-      <div style="font-size:16px;font-weight:700;font-family:monospace;color:var(--accent)" id="cad-uid">Aguardando leitura...</div>
-      <button class="btn btn-ghost" style="margin-top:12px;padding:12px" onclick="lerCartaoCadastro()">📡 Ler cartão</button>
-    </div>
-    <div class="campo"><label class="lbl">Nome do portador</label><input class="inp" id="cad-nome" placeholder="Ex: João Silva" type="text"></div>
-    <div class="campo"><label class="lbl">Saldo inicial (R$)</label><input class="inp" id="cad-saldo" placeholder="0,00" type="number" min="0" step="0.01"></div>
-    <button class="btn btn-gold" onclick="confirmarCadastro()">✅ Cadastrar</button>
-  </div>
-</div>
-
-<!-- ESTOQUE -->
-<div id="tela-estoque" class="tela">
-  <div class="hdr">
-    <button class="btn-back" onclick="mostrarTela('tela-admin-menu')">← Voltar</button>
-    <h1>Entrada de Estoque</h1>
-    <div></div>
-  </div>
-  <div class="scroll pad">
-    <div class="campo"><label class="lbl">Bebida</label><select class="inp" id="est-bebida" style="appearance:auto"></select></div>
-    <div class="campo"><label class="lbl">Quantidade</label><input class="inp" id="est-qtd" type="number" min="1" placeholder="Ex: 24"></div>
-    <div class="campo"><label class="lbl">Observação (opcional)</label><input class="inp" id="est-obs" placeholder="Ex: Caixa chegou às 18h"></div>
-    <button class="btn btn-gold" onclick="confirmarEstoque()">📦 Registrar entrada</button>
-  </div>
-</div>
-
+<!-- toast -->
 <div class="toast" id="toast"></div>
-<div class="loading" id="loading"><div class="spinner"></div></div>
 
 <script>
-const SENHA_ADMIN = '1234';
+// ── ATENÇÃO: atualize esta URL após reimplantar o Apps Script ──
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgn9N6tDTtVbPpAdjPMZjVgFB4RixrVmRSoiav9Yq-LYlb3QAd1criHB32GBVZJ_S3/exec';
 
+let curCard = null, curBev = null, curQty = 1, allBevs = [];
+
+// ─── SCREENS ───────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome() {
+  curCard = null; curBev = null; curQty = 1;
+  document.getElementById('nfc-btn').classList.remove('scanning');
+  document.getElementById('status').textContent = 'Toque para ativar o NFC';
+  showScreen('home');
+}
+
+// ─── API ───────────────────────────────────────────────────
 async function api(params) {
-  const url = SCRIPT_URL + '?' + new URLSearchParams(params).toString();
-  const res = await fetch(url);
-  return res.json();
+  const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(params));
+  return r.json();
+}
+async function apiPost(data) {
+  const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(data) });
+  return r.json();
 }
 
-let state = {
-  uid: null, nome: null, saldo: 0,
-  bebidas: [], bebidaSel: null, quantidade: 1,
-  nfcAtivo: false, nfcReader: null, modoAdmin: false
-};
-
-function mostrarTela(id) {
-  document.querySelectorAll('.tela').forEach(t => t.classList.remove('ativa'));
-  document.getElementById(id).classList.add('ativa');
+function loading(on, txt) {
+  document.getElementById('loader').classList.toggle('on', on);
+  if (txt) document.getElementById('loader-txt').textContent = txt;
 }
-
-function voltarHome() {
-  state.uid = null; state.nome = null; state.saldo = 0;
-  state.bebidaSel = null; state.quantidade = 1; state.modoAdmin = false;
-  mostrarTela('tela-home');
-}
-
-function ativarNFC() {
-  if (!('NDEFReader' in window)) { toast('Use o Chrome no Android para NFC', 'err'); setStatus('⚠️ NFC requer Chrome no Android', 'err'); return; }
-  if (state.nfcAtivo) return;
-  state.modoAdmin = false;
-  _iniciarNFC(uid => processarCartaoLido(uid));
-}
-
-function lerCartaoCadastro() {
-  if (!('NDEFReader' in window)) { toast('NFC requer Chrome no Android', 'err'); return; }
-  state.modoAdmin = true;
-  document.getElementById('cad-uid').textContent = '📡 Aproxime o cartão...';
-  _iniciarNFC(uid => { document.getElementById('cad-uid').textContent = uid; toast('UID capturado!', 'ok'); });
-}
-
-async function _iniciarNFC(callback) {
-  try {
-    if (state.nfcReader) { state._nfcCallback = callback; return; }
-    const reader = new NDEFReader();
-    state.nfcReader = reader;
-    state._nfcCallback = callback;
-    await reader.scan();
-    state.nfcAtivo = true;
-    reader.addEventListener('reading', ({ serialNumber }) => { if (state._nfcCallback) state._nfcCallback(serialNumber.toUpperCase()); });
-    reader.addEventListener('readingerror', () => toast('Erro ao ler cartão', 'err'));
-    document.getElementById('nfc-circle').classList.add('scanning');
-    document.getElementById('nfc-btn-txt').textContent = 'AGUARDANDO\nCARTÃO...';
-    setStatus('✅ NFC ativado — aproxime o cartão', 'ok');
-  } catch(e) { setStatus('Erro: ' + e.message, 'err'); toast('Erro NFC: ' + e.message, 'err'); }
-}
-
-function setStatus(msg, tipo) {
-  const el = document.getElementById('nfc-status');
-  el.textContent = msg;
-  el.className = 'nfc-status' + (tipo ? ' ' + tipo : '');
-}
-
-async function processarCartaoLido(uid) {
-  if (state.modoAdmin) return;
-  state.uid = uid;
-  loading(true);
-  try {
-    const res = await api({ action: 'buscarCartao', uid });
-    loading(false);
-    if (res.ok) { state.nome = res.nome; state.saldo = res.saldo; mostrarTelaCartao(); }
-    else if (confirm('Cartão não cadastrado.\nDeseja cadastrá-lo?\n\nUID: ' + uid)) { irParaAdminCadastroComUID(uid); }
-  } catch(e) { loading(false); toast('Erro de conexão', 'err'); }
-}
-
-function mostrarTelaCartao() {
-  document.getElementById('ct-saldo').textContent = fmt(state.saldo);
-  document.getElementById('ct-nome').textContent = state.nome;
-  document.getElementById('ct-uid').textContent = state.uid;
-  mostrarTela('tela-cartao');
-}
-
-async function irParaBebidas() {
-  mostrarTela('tela-bebidas');
-  document.getElementById('beb-saldo-hdr').textContent = fmt(state.saldo);
-  if (state.bebidas.length > 0) { renderBebidas(); return; }
-  loading(true);
-  try { state.bebidas = await api({ action: 'buscarBebidas' }); loading(false); renderBebidas(); }
-  catch(e) { loading(false); toast('Erro ao carregar bebidas', 'err'); }
-}
-
-function renderBebidas() {
-  const grid = document.getElementById('bebidas-grid');
-  if (!state.bebidas.length) { grid.innerHTML = '<div class="empty" style="grid-column:span 2"><div class="empty-ico">🍾</div>Nenhuma bebida cadastrada</div>'; return; }
-  grid.innerHTML = state.bebidas.map(b => {
-    const sem = b.estoque <= 0;
-    const img = b.foto ? `<img src="${b.foto}" onerror="this.parentElement.textContent='🍺'" alt="${b.nome}">` : '🍺';
-    return `<div class="beb ${sem?'beb-sem':''}" onclick="${sem?'':` selecionarBebida('${b.id}')`}">
-      <div class="beb-img-wrap">${img}</div>
-      <div class="beb-info"><div class="beb-nome">${b.nome}</div><div class="beb-preco">${fmt(b.preco)}</div><div class="beb-est">${sem?'❌ Sem estoque':`✅ ${b.estoque} un.`}</div></div>
-    </div>`;
-  }).join('');
-}
-
-function selecionarBebida(id) {
-  state.bebidaSel = state.bebidas.find(b => b.id === id);
-  state.quantidade = 1;
-  if (!state.bebidaSel) return;
-  const b = state.bebidaSel;
-  document.getElementById('conf-img').innerHTML = b.foto ? `<img src="${b.foto}" onerror="this.parentElement.innerHTML='🍺'" alt="${b.nome}">` : '🍺';
-  document.getElementById('conf-nome').textContent = b.nome;
-  document.getElementById('conf-preco').textContent = fmt(b.preco) + ' / unidade';
-  atualizarConfirmacao();
-  mostrarTela('tela-confirmacao');
-}
-
-function ajustarQtd(delta) {
-  const n = state.quantidade + delta;
-  if (n < 1 || n > state.bebidaSel.estoque) return;
-  state.quantidade = n; atualizarConfirmacao();
-}
-
-function atualizarConfirmacao() {
-  const total = state.bebidaSel.preco * state.quantidade;
-  const rest = state.saldo - total;
-  document.getElementById('conf-qtd').textContent = state.quantidade;
-  document.getElementById('conf-total').textContent = fmt(total);
-  const el = document.getElementById('conf-saldo-rest');
-  el.textContent = rest >= 0 ? `Saldo após: ${fmt(rest)}` : `⚠️ Insuficiente (faltam ${fmt(Math.abs(rest))})`;
-  el.className = 'saldo-rest' + (rest < 0 ? ' insuf' : '');
-  document.getElementById('conf-btn-ok').disabled = rest < 0;
-}
-
-async function confirmarConsumo() {
-  loading(true);
-  try {
-    const res = await api({ action: 'realizarConsumo', uid: state.uid, bebidaId: state.bebidaSel.id, quantidade: state.quantidade });
-    loading(false);
-    if (res.ok) { state.saldo = res.novoSaldo; state.bebidas = []; toast(`✅ ${res.nomeBebida} — ${fmt(res.total)} debitado`, 'ok'); mostrarTelaCartao(); }
-    else { toast(res.msg, 'err'); }
-  } catch(e) { loading(false); toast('Erro de conexão', 'err'); }
-}
-
-function irParaRecarga() {
-  document.getElementById('rec-saldo-atual').textContent = fmt(state.saldo);
-  document.getElementById('rec-nome').textContent = state.nome;
-  document.getElementById('rec-valor-inp').value = '';
-  document.querySelectorAll('.vbtn').forEach(b => b.classList.remove('on'));
-  mostrarTela('tela-recarga');
-}
-
-function selecionarValor(v) {
-  document.getElementById('rec-valor-inp').value = v;
-  document.querySelectorAll('.vbtn').forEach(b => b.classList.toggle('on', b.textContent === 'R$ ' + v));
-}
-
-function onRecargaInput() { document.querySelectorAll('.vbtn').forEach(b => b.classList.remove('on')); }
-
-async function confirmarRecarga() {
-  const val = Number(document.getElementById('rec-valor-inp').value);
-  if (!val || val <= 0) { toast('Informe um valor válido', 'err'); return; }
-  loading(true);
-  try {
-    const res = await api({ action: 'recarregarCartao', uid: state.uid, valor: val });
-    loading(false);
-    if (res.ok) { state.saldo = res.novoSaldo; toast(`✅ ${fmt(val)} adicionado — ${res.nome}`, 'ok'); mostrarTelaCartao(); }
-    else { toast(res.msg, 'err'); }
-  } catch(e) { loading(false); toast('Erro de conexão', 'err'); }
-}
-
-async function irParaHistorico() {
-  mostrarTela('tela-historico');
-  document.getElementById('hist-title').textContent = state.nome;
-  document.getElementById('hist-lista').innerHTML = '<div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>';
-  loading(true);
-  try {
-    const lista = await api({ action: 'buscarHistorico', uid: state.uid });
-    loading(false);
-    const el = document.getElementById('hist-lista');
-    if (!lista.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">📋</div>Sem registros</div>'; return; }
-    el.innerHTML = '<div style="background:var(--card);border-radius:16px;margin:12px 16px">' +
-      lista.map(h => `<div class="hist-item">
-        <div><div class="hist-beb">${h.bebida}</div><div class="hist-dthr">${h.data} ${h.hora}</div></div>
-        <div><div class="hist-val ${h.tipo==='CONSUMO'?'c':'r'}">${h.tipo==='CONSUMO'?'−':'+'}${fmt(h.valor)}</div>
-        <div style="font-size:11px;color:var(--text2);text-align:right">${h.tipo}</div></div>
-      </div>`).join('') + '</div>';
-  } catch(e) { loading(false); toast('Erro', 'err'); }
-}
-
-function irParaAdmin() { document.getElementById('senha-inp').value = ''; mostrarTela('tela-admin-senha'); }
-
-function validarSenha() {
-  if (document.getElementById('senha-inp').value === SENHA_ADMIN) mostrarTela('tela-admin-menu');
-  else { toast('Senha incorreta', 'err'); document.getElementById('senha-inp').value = ''; }
-}
-
-async function irParaRelatorio() {
-  mostrarTela('tela-relatorio');
-  ['rel-consumo','rel-recargas','rel-saldo'].forEach(id => document.getElementById(id).textContent = '—');
-  document.getElementById('rel-bebidas').innerHTML = '<div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>';
-  loading(true);
-  try {
-    const res = await api({ action: 'relatorioGeral' });
-    loading(false);
-    if (!res.ok) { toast(res.msg, 'err'); return; }
-    document.getElementById('rel-consumo').textContent = fmt(res.totalConsumo);
-    document.getElementById('rel-recargas').textContent = fmt(res.totalRecargas);
-    document.getElementById('rel-saldo').textContent = fmt(res.saldoAberto);
-    const bebs = Object.entries(res.porBebida).sort((a,b) => b[1].valor - a[1].valor);
-    document.getElementById('rel-bebidas').innerHTML = bebs.length
-      ? bebs.map(([n,d]) => `<div class="rel-row"><div><div class="rel-nome">${n}</div><div class="rel-qtd">${d.qtd} un.</div></div><div class="rel-val">${fmt(d.valor)}</div></div>`).join('')
-      : '<div class="empty" style="padding:24px">Sem consumo</div>';
-    document.getElementById('rel-cartoes').innerHTML = res.cartoes.sort((a,b)=>b.saldo-a.saldo)
-      .map(c => `<div class="rel-row"><div class="rel-nome">${c.nome}</div><div class="rel-saldo-val ${c.saldo>0?'verde':'vermelho'}">${fmt(c.saldo)}</div></div>`).join('');
-  } catch(e) { loading(false); toast('Erro', 'err'); }
-}
-
-async function irParaRanking() {
-  mostrarTela('tela-ranking');
-  document.getElementById('rank-lista').innerHTML = '<div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>';
-  loading(true);
-  try {
-    const res = await api({ action: 'rankingConsumo' });
-    loading(false);
-    const el = document.getElementById('rank-lista');
-    if (!res.ok || !res.ranking.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">🏆</div>Sem dados ainda</div>'; return; }
-    const medalhas = ['🥇','🥈','🥉'];
-    const classes = ['gold','silver','bronze'];
-    el.innerHTML = res.ranking.map((r, i) => `
-      <div class="rank-item">
-        <div class="rank-pos ${classes[i] || 'other'}">${medalhas[i] || (i+1)+'º'}</div>
-        <div class="rank-info">
-          <div class="rank-nome">${r.nome}</div>
-          <div class="rank-qtd">${r.qtd} itens consumidos</div>
-        </div>
-        <div class="rank-val">${fmt(r.valor)}</div>
-      </div>`).join('');
-  } catch(e) { loading(false); toast('Erro', 'err'); }
-}
-
-async function irParaGrafico() {
-  mostrarTela('tela-grafico');
-  document.getElementById('grafico-wrap').innerHTML = '<div class="empty"><div class="empty-ico">⏳</div>Carregando...</div>';
-  loading(true);
-  try {
-    const res = await api({ action: 'graficoPorHorario' });
-    loading(false);
-    const el = document.getElementById('grafico-wrap');
-    if (!res.ok || !res.horas.length) { el.innerHTML = '<div class="empty"><div class="empty-ico">📈</div>Sem dados ainda</div>'; return; }
-    const max = Math.max(...res.horas.map(h => h.valor));
-    el.innerHTML = res.horas.map(h => {
-      const pct = Math.round((h.valor / max) * 100);
-      return `<div class="barra-row">
-        <div class="barra-label"><span>${h.hora}</span><span>${fmt(h.valor)}</span></div>
-        <div class="barra-bg"><div class="barra-fill" style="width:${pct}%">${pct > 15 ? fmt(h.valor) : ''}</div></div>
-      </div>`;
-    }).join('');
-  } catch(e) { loading(false); toast('Erro', 'err'); }
-}
-
-function irParaCadastro() {
-  state.modoAdmin = true;
-  document.getElementById('cad-uid').textContent = 'Aguardando leitura...';
-  document.getElementById('cad-nome').value = '';
-  document.getElementById('cad-saldo').value = '';
-  mostrarTela('tela-cadastro');
-}
-
-function irParaAdminCadastroComUID(uid) {
-  state.modoAdmin = true;
-  document.getElementById('cad-uid').textContent = uid;
-  document.getElementById('cad-nome').value = '';
-  document.getElementById('cad-saldo').value = '';
-  mostrarTela('tela-cadastro');
-}
-
-async function confirmarCadastro() {
-  const uid = document.getElementById('cad-uid').textContent;
-  const nome = document.getElementById('cad-nome').value.trim();
-  const saldo = Number(document.getElementById('cad-saldo').value) || 0;
-  if (!uid || uid.includes('Aguardando')) { toast('Leia o cartão primeiro', 'err'); return; }
-  if (!nome) { toast('Informe o nome', 'err'); return; }
-  loading(true);
-  try {
-    const res = await api({ action: 'cadastrarCartao', uid, nome, saldo });
-    loading(false);
-    if (res.ok) { toast('✅ Cartão cadastrado!', 'ok'); mostrarTela('tela-admin-menu'); }
-    else { toast(res.msg, 'err'); }
-  } catch(e) { loading(false); toast('Erro', 'err'); }
-}
-
-async function irParaEstoque() {
-  mostrarTela('tela-estoque');
-  document.getElementById('est-qtd').value = '';
-  document.getElementById('est-obs').value = '';
-  const sel = document.getElementById('est-bebida');
-  sel.innerHTML = '<option>Carregando...</option>';
-  try {
-    const lista = await api({ action: 'buscarBebidas' });
-    sel.innerHTML = lista.map(b => `<option value="${b.id}">${b.nome} (estoque: ${b.estoque})</option>`).join('');
-  } catch(e) { sel.innerHTML = '<option>Erro ao carregar</option>'; }
-}
-
-async function confirmarEstoque() {
-  const bebidaId = document.getElementById('est-bebida').value;
-  const qtd = Number(document.getElementById('est-qtd').value);
-  const obs = document.getElementById('est-obs').value;
-  if (!qtd || qtd < 1) { toast('Informe a quantidade', 'err'); return; }
-  loading(true);
-  try {
-    const res = await api({ action: 'entradaEstoque', bebidaId, quantidade: qtd, obs });
-    loading(false);
-    if (res.ok) { toast(`✅ ${res.nome}: ${qtd} un. (estoque: ${res.novoEstoque})`, 'ok'); mostrarTela('tela-admin-menu'); }
-    else { toast(res.msg, 'err'); }
-  } catch(e) { loading(false); toast('Erro', 'err'); }
-}
-
-function fmt(v) { return 'R$ ' + Number(v).toFixed(2).replace('.', ','); }
-
-function toast(msg, tipo) {
+let _toastTimer;
+function showToast(msg, type) {
   const el = document.getElementById('toast');
   el.textContent = msg;
-  el.className = 'toast show' + (tipo ? ' ' + tipo : '');
-  setTimeout(() => el.className = 'toast', 3500);
+  el.className = 'toast on' + (type ? ' ' + type : '');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('on'), 3000);
+}
+function fmt(v) { return 'R$ ' + Number(v).toFixed(2).replace('.', ','); }
+
+// ─── NFC ───────────────────────────────────────────────────
+async function startNFC() {
+  if (!('NDEFReader' in window)) {
+    showToast('NFC não suportado — use Chrome no Android', 'err'); return;
+  }
+  const btn = document.getElementById('nfc-btn');
+  btn.classList.add('scanning');
+  document.getElementById('status').textContent = 'Aguardando cartão…';
+  try {
+    const ndef = new NDEFReader();
+    await ndef.scan();
+    ndef.onreadingerror = () => showToast('Erro ao ler cartão', 'err');
+    ndef.onreading = async (ev) => {
+      const uid = ev.serialNumber.replace(/:/g,'').toUpperCase();
+      btn.classList.remove('scanning');
+      await handleCard(uid);
+    };
+  } catch(e) {
+    btn.classList.remove('scanning');
+    document.getElementById('status').textContent = 'Toque para ativar o NFC';
+    showToast('Permissão NFC negada — verifique as configurações do site', 'err');
+  }
 }
 
-function loading(show) {
-  document.getElementById('loading').className = 'loading' + (show ? ' show' : '');
+async function handleCard(uid) {
+  loading(true, 'Buscando cartão…');
+  try {
+    const res = await api({ action:'getCard', uid });
+    loading(false);
+    if (!res.found) {
+      showToast('Cartão não cadastrado! Use o painel admin para cadastrar.', 'err');
+      document.getElementById('status').textContent = 'Toque para ativar o NFC';
+      document.getElementById('nfc-btn').classList.remove('scanning');
+      return;
+    }
+    curCard = res;
+    document.getElementById('card-name').textContent = res.nome;
+    document.getElementById('card-uid').textContent  = 'UID: ' + res.uid;
+    document.getElementById('card-tab').textContent  = fmt(res.tabTotal);
+    showScreen('card-screen');
+  } catch(e) {
+    loading(false);
+    showToast('Erro de conexão', 'err');
+  }
 }
 
-document.getElementById('senha-inp').addEventListener('keydown', e => { if (e.key === 'Enter') validarSenha(); });
+// ─── BEBIDAS ───────────────────────────────────────────────
+async function showBeverages() {
+  loading(true, 'Carregando bebidas…');
+  try {
+    const res = await api({ action:'getBeverages' });
+    loading(false);
+    allBevs = res.beverages || [];
+    document.getElementById('bev-hdr-nome').textContent = curCard.nome;
+    const grid = document.getElementById('bev-grid');
+    if (!allBevs.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text2);padding:40px">Nenhuma bebida cadastrada</div>';
+    } else {
+      grid.innerHTML = allBevs.map(b => `
+        <div class="bev-card" onclick="selectBev(${b.id})">
+          ${b.fotoUrl
+            ? `<img class="bev-img" src="${b.fotoUrl}" loading="lazy" onerror="this.style.display='none'">`
+            : `<div class="bev-ph">🍺</div>`}
+          <div class="bev-info">
+            <div class="bev-nome">${b.nome}</div>
+            <div class="bev-preco">${fmt(b.precoVenda)}</div>
+            <div class="bev-stk">Estoque: ${b.estoque}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    showScreen('bev-screen');
+  } catch(e) {
+    loading(false);
+    showToast('Erro ao carregar bebidas', 'err');
+  }
+}
+
+function selectBev(id) {
+  curBev = allBevs.find(b => b.id == id);
+  if (!curBev) return;
+  curQty = 1;
+  document.getElementById('cf-nome').textContent  = curCard.nome;
+  document.getElementById('cf-bev').textContent   = curBev.nome;
+  document.getElementById('cf-unit').textContent  = fmt(curBev.precoVenda);
+  document.getElementById('qty-num').textContent  = 1;
+  document.getElementById('cf-total').textContent = fmt(curBev.precoVenda);
+  showScreen('confirm-screen');
+}
+
+function chgQty(d) {
+  curQty = Math.max(1, curQty + d);
+  document.getElementById('qty-num').textContent  = curQty;
+  document.getElementById('cf-total').textContent = fmt(curBev.precoVenda * curQty);
+}
+
+// ─── CONSUMO ───────────────────────────────────────────────
+async function doConsume() {
+  const btn = document.getElementById('btn-ok');
+  btn.disabled = true;
+  loading(true, 'Lançando…');
+  try {
+    const res = await apiPost({ action:'consume', uid:curCard.uid, beverageId:curBev.id, qty:curQty });
+    loading(false);
+    btn.disabled = false;
+    if (!res.success) { showToast(res.error || 'Erro ao lançar', 'err'); return; }
+    document.getElementById('suc-detail').textContent = `${curQty}× ${curBev.nome}  •  ${fmt(curBev.precoVenda * curQty)}`;
+    document.getElementById('suc-tab').textContent    = fmt(res.card.tabTotal);
+    showScreen('success-screen');
+  } catch(e) {
+    loading(false);
+    btn.disabled = false;
+    showToast('Erro de conexão', 'err');
+  }
+}
+
+// ─── HISTÓRICO ─────────────────────────────────────────────
+async function showHistory() {
+  loading(true, 'Carregando histórico…');
+  try {
+    const res = await api({ action:'getTransactions', uid:curCard.uid });
+    loading(false);
+    document.getElementById('hist-hdr-nome').textContent = curCard.nome;
+    const trans = (res.transactions || []).reverse();
+    const list  = document.getElementById('hist-list');
+    if (!trans.length) {
+      list.innerHTML = '<div class="hist-empty">Nenhum consumo registrado ainda</div>';
+    } else {
+      list.innerHTML = trans.map(t => `
+        <div class="hist-item">
+          <div>
+            <div class="hist-bev">${t.bebida}</div>
+            <div class="hist-time">${t.data} às ${t.hora} &nbsp;·&nbsp; ${t.quantidade}×</div>
+          </div>
+          <div class="hist-v">${fmt(t.valorTotal)}</div>
+        </div>
+      `).join('');
+    }
+    showScreen('hist-screen');
+  } catch(e) {
+    loading(false);
+    showToast('Erro ao carregar histórico', 'err');
+  }
+}
 </script>
 </body>
 </html>
