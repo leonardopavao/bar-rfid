@@ -146,7 +146,22 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .empty .ei{font-size:36px;margin-bottom:8px}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media(max-width:860px){.two{grid-template-columns:1fr}}
-input[type=number]::-webkit-inner-spin-button{opacity:1}
+.lc-ccard{background:var(--s1);border:2px solid var(--border);border-radius:10px;padding:11px 14px;cursor:pointer;transition:all .15s}
+.lc-ccard:hover{border-color:var(--amber);background:var(--aglow)}
+.lc-ccard.sel{border-color:var(--amber);background:var(--aglow)}
+.lc-ccard-n{font-size:14px;font-weight:700}
+.lc-ccard-t{font-size:12px;color:var(--text2);margin-top:3px}
+.lc-ccard.has-tab .lc-ccard-t{color:var(--amber)}
+.cart-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);gap:8px}
+.cart-item:last-child{border-bottom:none}
+.cart-item-n{font-size:13px;font-weight:600;flex:1}
+.cart-item-v{font-size:13px;color:var(--amber);font-weight:700;white-space:nowrap}
+.cart-qty{display:flex;align-items:center;gap:6px;background:var(--s2);border-radius:7px;padding:3px 8px}
+.cqb{background:none;border:none;color:var(--amber);font-size:16px;font-weight:800;cursor:pointer;padding:0 2px;line-height:1}
+.cqn{font-size:13px;font-weight:700;min-width:18px;text-align:center}
+.cart-rm{background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:0 2px}
+.cart-rm:hover{color:var(--danger)}
+.cart-empty{text-align:center;color:var(--text2);font-size:13px;padding:20px 0}
 </style>
 </head>
 <body>
@@ -232,58 +247,43 @@ input[type=number]::-webkit-inner-spin-button{opacity:1}
       <!-- LANÇAR -->
       <div class="sec" id="sec-lancar">
 
-        <!-- Step 1: card -->
+        <!-- Step 1: grade de cartões -->
         <div class="lc-step">
           <div class="lc-stitle">1 — Selecionar Cartão</div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <input id="lc-srch" placeholder="🔍 Filtrar por nome…" oninput="filterLc()"
-              style="flex:1;min-width:150px;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none">
-            <select id="lc-sel" onchange="onLcSel()"
-              style="flex:2;min-width:180px;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none">
-              <option value="">— Selecione um cartão —</option>
-            </select>
-          </div>
-          <div id="lc-cdisp" style="display:none">
-            <div class="sel-cbox">
-              <div>
-                <div style="font-size:17px;font-weight:700" id="lc-cn"></div>
-                <div style="font-size:11px;color:var(--text2);font-family:monospace;margin-top:2px" id="lc-cu"></div>
-              </div>
-              <div style="text-align:right">
-                <div style="font-size:11px;color:var(--text2)">Consumo acumulado</div>
-                <div style="font-size:21px;font-weight:900;color:var(--amber)" id="lc-ct"></div>
-              </div>
+          <input id="lc-srch" placeholder="🔍 Filtrar por nome…" oninput="filterLc()"
+            style="width:100%;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;margin-bottom:12px">
+          <div id="lc-card-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px"></div>
+        </div>
+
+        <!-- Step 2: bebidas + carrinho -->
+        <div id="lc-s2" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start">
+
+            <!-- Bebidas -->
+            <div class="lc-step" style="margin-bottom:0">
+              <div class="lc-stitle">2 — Adicionar ao Carrinho</div>
+              <div class="bpg" id="lc-bg"></div>
             </div>
-          </div>
-        </div>
 
-        <!-- Step 2: bebida -->
-        <div class="lc-step" id="lc-s2" style="display:none">
-          <div class="lc-stitle">2 — Selecionar Bebida</div>
-          <div class="bpg" id="lc-bg"></div>
-        </div>
-
-        <!-- Step 3: qty + confirm -->
-        <div class="lc-step" id="lc-s3" style="display:none">
-          <div class="lc-stitle">3 — Quantidade &amp; Confirmar</div>
-          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px">
-            <div>
-              <div style="font-size:13px;color:var(--text2);margin-bottom:9px">Bebida: <strong class="ca" id="lc-bn"></strong></div>
-              <div class="qty-row">
-                <div class="qty-ctl">
-                  <button class="qb" onclick="lcD(-1)">−</button>
-                  <span class="qn" id="lc-qn">1</span>
-                  <button class="qb" onclick="lcD(1)">+</button>
-                </div>
+            <!-- Carrinho -->
+            <div class="lc-step" style="margin-bottom:0;position:sticky;top:0">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div class="lc-stitle" style="margin-bottom:0">🛒 Carrinho — <span class="ca" id="lc-cn"></span></div>
+                <button class="btn bd bsm" onclick="lcClearCart()">Limpar</button>
+              </div>
+              <div id="lc-cart-items" style="min-height:60px"></div>
+              <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;align-items:center">
                 <div>
-                  <div style="font-size:11px;color:var(--text2)">Total a lançar</div>
-                  <div class="lc-tv" id="lc-tot">R$ 0,00</div>
+                  <div style="font-size:11px;color:var(--text2)">Total</div>
+                  <div style="font-size:22px;font-weight:900;color:var(--amber)" id="lc-cart-total">R$ 0,00</div>
                 </div>
+                <button class="btn bp" style="padding:12px 22px;font-size:14px" id="lc-confirm-btn" onclick="doLancar()" disabled>Confirmar ✓</button>
               </div>
             </div>
-            <button class="btn bp" style="padding:13px 28px;font-size:14px" onclick="doLancar()">Confirmar Lançamento ✓</button>
+
           </div>
         </div>
+
       </div>
 
       <!-- RELATÓRIOS -->
@@ -721,76 +721,118 @@ async function viewCardHist(uid,nome,tab) {
   document.getElementById('m-ch').classList.add('show');
 }
 
-// ── LANÇAR (usa cache — instantâneo) ────────────────────────
-let lcCard=null, lcBev=null, lcQty=1;
+// ── LANÇAR (grade de cartões + carrinho) ────────────────────
+let lcCard = null, lcCart = []; // cart: [{bev, qty}]
+
 function initLancar() {
-  lcCard=null; lcBev=null; lcQty=1;
-  buildLcSel();
-  document.getElementById('lc-cdisp').style.display='none';
-  document.getElementById('lc-s2').style.display='none';
-  document.getElementById('lc-s3').style.display='none';
+  lcCard = null; lcCart = [];
+  renderLcCardGrid();
+  document.getElementById('lc-s2').style.display = 'none';
+  document.getElementById('lc-srch').value = '';
 }
-function buildLcSel() {
-  const q = document.getElementById('lc-srch').value.toLowerCase();
-  const sel = document.getElementById('lc-sel');
-  sel.innerHTML = '<option value="">— Selecione um cartão —</option>' +
-    C.cards.filter(c=>c.nome.toLowerCase().includes(q)).map(c=>`<option value="${c.uid}">${c.nome} — ${fmt(c.tabTotal)}</option>`).join('');
+
+function renderLcCardGrid() {
+  const q    = document.getElementById('lc-srch').value.toLowerCase();
+  const list = [...C.cards]
+    .filter(c => c.nome.toLowerCase().includes(q))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  document.getElementById('lc-card-grid').innerHTML = list.map(c => `
+    <div class="lc-ccard ${c.tabTotal > 0 ? 'has-tab' : ''} ${lcCard && lcCard.uid === c.uid ? 'sel' : ''}"
+      onclick="selLcCard('${c.uid}')">
+      <div class="lc-ccard-n">${c.nome}</div>
+      <div class="lc-ccard-t">${c.tabTotal > 0 ? fmt(c.tabTotal) : 'R$ 0,00'}</div>
+    </div>`).join('') || '<div style="color:var(--text2);font-size:13px">Nenhum cartão encontrado</div>';
 }
-function filterLc() { buildLcSel(); }
-function onLcSel() {
-  const uid = document.getElementById('lc-sel').value;
-  if (!uid) { document.getElementById('lc-cdisp').style.display='none'; document.getElementById('lc-s2').style.display='none'; document.getElementById('lc-s3').style.display='none'; return; }
-  lcCard = C.cards.find(c=>c.uid===uid);
+
+function filterLc() { renderLcCardGrid(); }
+
+function selLcCard(uid) {
+  lcCard = C.cards.find(c => c.uid === uid);
+  lcCart = [];
+  renderLcCardGrid();
   document.getElementById('lc-cn').textContent = lcCard.nome;
-  document.getElementById('lc-cu').textContent = lcCard.uid;
-  document.getElementById('lc-ct').textContent = fmt(lcCard.tabTotal);
-  document.getElementById('lc-cdisp').style.display='block';
-  // Monta grid de bebidas do cache — sem chamada API
-  document.getElementById('lc-bg').innerHTML = C.bevs.map(b=>`
-    <div class="bpi" id="bpi-${b.id}" onclick="selLcBev(${b.id})">
-      ${b.fotoUrl?`<img src="${b.fotoUrl}" onerror="this.outerHTML='<div class=bpi-ph>🍺</div>'">`:`<div class="bpi-ph">🍺</div>`}
+  // monta grade de bebidas
+  document.getElementById('lc-bg').innerHTML = C.bevs.map(b => `
+    <div class="bpi" id="bpi-${b.id}" onclick="lcAddToCart(${b.id})">
+      ${b.fotoUrl ? `<img src="${b.fotoUrl}" onerror="this.outerHTML='<div class=bpi-ph>🍺</div>'">` : `<div class="bpi-ph">🍺</div>`}
       <div class="bpi-n">${b.nome}</div>
       <div class="bpi-p">${fmt(b.precoVenda)}</div>
     </div>`).join('');
-  document.getElementById('lc-s2').style.display='block';
-  document.getElementById('lc-s3').style.display='none';
-  lcBev=null; lcQty=1;
+  renderCart();
+  document.getElementById('lc-s2').style.display = 'block';
+  document.getElementById('lc-s2').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-function selLcBev(id) {
-  document.querySelectorAll('.bpi').forEach(el=>el.classList.remove('sel'));
-  document.getElementById('bpi-'+id)?.classList.add('sel');
-  lcBev=C.bevs.find(b=>b.id==id); lcQty=1;
-  document.getElementById('lc-bn').textContent  = lcBev.nome;
-  document.getElementById('lc-qn').textContent  = 1;
-  document.getElementById('lc-tot').textContent = fmt(lcBev.precoVenda);
-  document.getElementById('lc-s3').style.display='block';
+
+function lcAddToCart(id) {
+  const bev = C.bevs.find(b => b.id == id); if (!bev) return;
+  const existing = lcCart.find(i => i.bev.id == id);
+  if (existing) { existing.qty++; }
+  else          { lcCart.push({ bev, qty: 1 }); }
+  // pulsa o item na grade
+  const el = document.getElementById('bpi-' + id);
+  if (el) { el.classList.add('sel'); setTimeout(() => el.classList.remove('sel'), 300); }
+  renderCart();
 }
-function lcD(d) {
-  lcQty=Math.max(1,lcQty+d);
-  document.getElementById('lc-qn').textContent  = lcQty;
-  document.getElementById('lc-tot').textContent = fmt(lcBev.precoVenda*lcQty);
+
+function lcCartDelta(id, d) {
+  const item = lcCart.find(i => i.bev.id == id); if (!item) return;
+  item.qty += d;
+  if (item.qty <= 0) lcCart = lcCart.filter(i => i.bev.id != id);
+  renderCart();
 }
+
+function lcRemove(id) {
+  lcCart = lcCart.filter(i => i.bev.id != id);
+  renderCart();
+}
+
+function lcClearCart() { lcCart = []; renderCart(); }
+
+function renderCart() {
+  const total = lcCart.reduce((s, i) => s + i.bev.precoVenda * i.qty, 0);
+  document.getElementById('lc-cart-items').innerHTML = lcCart.length
+    ? lcCart.map(i => `
+        <div class="cart-item">
+          <div class="cart-item-n">${i.bev.nome}</div>
+          <div class="cart-qty">
+            <button class="cqb" onclick="lcCartDelta(${i.bev.id},-1)">−</button>
+            <span class="cqn">${i.qty}</span>
+            <button class="cqb" onclick="lcCartDelta(${i.bev.id},1)">+</button>
+          </div>
+          <div class="cart-item-v">${fmt(i.bev.precoVenda * i.qty)}</div>
+          <button class="cart-rm" onclick="lcRemove(${i.bev.id})">✕</button>
+        </div>`).join('')
+    : '<div class="cart-empty">Nenhum item adicionado</div>';
+  document.getElementById('lc-cart-total').textContent = fmt(total);
+  document.getElementById('lc-confirm-btn').disabled = lcCart.length === 0;
+}
+
 async function doLancar() {
-  if (!lcCard||!lcBev) { toast('Selecione cartão e bebida','err'); return; }
-  if (!confirm(`Lançar ${lcQty}× ${lcBev.nome} para ${lcCard.nome}?\nTotal: ${fmt(lcBev.precoVenda*lcQty)}`)) return;
-  load(true,'Lançando…');
-  const r = await apiPost({ action:'consume', uid:lcCard.uid, beverageId:lcBev.id, qty:lcQty });
+  if (!lcCard || !lcCart.length) return;
+  const total = lcCart.reduce((s, i) => s + i.bev.precoVenda * i.qty, 0);
+  const resumo = lcCart.map(i => `${i.qty}× ${i.bev.nome}`).join(', ');
+  if (!confirm(`Lançar para ${lcCard.nome}:\n${resumo}\nTotal: ${fmt(total)}`)) return;
+  load(true, 'Lançando…');
+  // envia cada item sequencialmente
+  let newTab = lcCard.tabTotal;
+  for (const item of lcCart) {
+    const r = await apiPost({ action:'consume', uid:lcCard.uid, beverageId:item.bev.id, qty:item.qty });
+    if (r.success) {
+      newTab = r.card.tabTotal;
+      // atualiza estoque no cache
+      const bi = C.bevs.findIndex(b => b.id == item.bev.id);
+      if (bi !== -1) C.bevs[bi].estoque = Math.max(0, C.bevs[bi].estoque - item.qty);
+    }
+  }
   load(false);
-  if (r.success) {
-    toast(`✅ Lançado! Tab de ${r.card.nome}: ${fmt(r.card.tabTotal)}`,'ok');
-    // atualiza cache local sem refazer tudo
-    const idx=C.cards.findIndex(c=>c.uid===lcCard.uid);
-    if (idx!==-1) C.cards[idx].tabTotal=r.card.tabTotal;
-    lcCard.tabTotal=r.card.tabTotal;
-    document.getElementById('lc-ct').textContent=fmt(lcCard.tabTotal);
-    // atualiza estoque no cache
-    const bi=C.bevs.findIndex(b=>b.id==lcBev.id);
-    if (bi!==-1) C.bevs[bi].estoque=Math.max(0,C.bevs[bi].estoque-lcQty);
-    // reset seleção bebida
-    document.querySelectorAll('.bpi').forEach(el=>el.classList.remove('sel'));
-    lcBev=null; lcQty=1;
-    document.getElementById('lc-s3').style.display='none';
-  } else toast(r.error||'Erro ao lançar','err');
+  // atualiza tab no cache
+  const idx = C.cards.findIndex(c => c.uid === lcCard.uid);
+  if (idx !== -1) C.cards[idx].tabTotal = newTab;
+  lcCard.tabTotal = newTab;
+  toast(`✅ Lançado! Tab de ${lcCard.nome}: ${fmt(newTab)}`, 'ok');
+  lcCart = [];
+  renderCart();
+  renderLcCardGrid();
 }
 
 // ── ESTORNO ─────────────────────────────────────────────────
