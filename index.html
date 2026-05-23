@@ -2,269 +2,440 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Bar dos Bodes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bar dos Bodes — Admin</title>
 <style>
-:root {
-  --bg:#0d0d0d; --surface:#1a1a1a; --amber:#f59e0b;
-  --text:#f5f5f5; --text2:#9ca3af; --success:#22c55e;
-  --danger:#ef4444; --border:#2a2a2a;
+:root{
+  --bg:#0f0f0f; --s1:#1a1a1a; --s2:#222; --s3:#2a2a2a;
+  --amber:#f59e0b; --aglow:rgba(245,158,11,.13);
+  --text:#f0f0f0; --text2:#9ca3af;
+  --success:#22c55e; --danger:#ef4444; --info:#60a5fa;
+  --border:#2a2a2a; --sw:220px;
 }
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;height:100dvh;overflow:hidden}
-.screen{position:absolute;inset:0;display:none;flex-direction:column}
-.screen.active{display:flex}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;height:100vh;overflow:hidden}
+button{cursor:pointer}
 
-/* HEADER */
-.hdr{background:var(--surface);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--amber);flex-shrink:0}
-.hdr h1{font-size:15px;font-weight:800;color:var(--amber);letter-spacing:2px}
-.hdr-back{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;padding:4px 10px}
+/* LOGIN */
+#login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
+.lbox{background:var(--s1);border:1px solid var(--border);border-radius:20px;padding:48px 44px;width:320px;text-align:center}
+.lbox-ico{font-size:52px;margin-bottom:6px}
+.lbox-title{font-size:21px;font-weight:900;color:var(--amber);letter-spacing:2px}
+.lbox-sub{font-size:13px;color:var(--text2);margin-bottom:28px;margin-top:4px}
+.lbox input{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:10px;padding:13px;color:var(--text);font-size:18px;text-align:center;letter-spacing:6px;outline:none;margin-bottom:13px}
+.lbox input:focus{border-color:var(--amber)}
+.lbtn{width:100%;background:var(--amber);color:#000;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:700}
+.lerr{color:var(--danger);font-size:13px;margin-top:8px;min-height:18px}
 
-/* HOME */
-#home{justify-content:center;align-items:center;gap:28px;text-align:center;padding:32px 24px}
-.logo-img{width:110px;height:110px;border-radius:18px;object-fit:contain}
-.logo-title{font-size:26px;font-weight:900;color:var(--amber);letter-spacing:3px}
-.logo-sub{color:var(--text2);font-size:13px}
-.nfc-btn{background:var(--amber);color:#000;border:none;border-radius:50%;width:150px;height:150px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;box-shadow:0 0 32px rgba(245,158,11,.4);transition:transform .15s}
-.nfc-btn:active{transform:scale(.93)}
-.nfc-btn .icon{font-size:54px;line-height:1}
-.nfc-btn .lbl{font-size:12px;font-weight:700;letter-spacing:1px}
-.nfc-btn.scanning{animation:pulse 1.4s ease-in-out infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 32px rgba(245,158,11,.4)}50%{box-shadow:0 0 56px rgba(245,158,11,.85)}}
-.status{color:var(--text2);font-size:14px;min-height:18px}
+/* LAYOUT */
+#app{display:none;height:100vh}
+#app.show{display:flex}
+#sb{width:var(--sw);background:var(--s1);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sb-head{padding:20px 16px;border-bottom:1px solid var(--border)}
+.sb-ico{font-size:28px}
+.sb-name{font-size:13px;font-weight:900;color:var(--amber);letter-spacing:1px;margin-top:4px}
+.sb-sub{font-size:11px;color:var(--text2)}
+.sb-nav{flex:1;padding:8px}
+.ni{display:flex;align-items:center;gap:11px;padding:10px 13px;border-radius:10px;color:var(--text2);font-size:14px;transition:all .15s;margin-bottom:2px;border-left:3px solid transparent;cursor:pointer}
+.ni:hover{background:var(--s2);color:var(--text)}
+.ni.on{background:var(--aglow);color:var(--amber);border-left-color:var(--amber)}
+.ni-ic{font-size:16px;width:20px}
+.sb-foot{padding:13px;border-top:1px solid var(--border)}
+.sb-out{width:100%;background:none;border:1px solid var(--border);border-radius:8px;padding:9px;color:var(--text2);font-size:13px}
+.sb-out:hover{border-color:var(--danger);color:var(--danger)}
 
-/* REGISTER */
-#register-screen{justify-content:center;align-items:center;padding:24px;gap:0}
-.reg-box{background:var(--surface);border-radius:20px;padding:28px;width:100%;max-width:360px;border:1px solid var(--border)}
-.reg-icon{font-size:48px;text-align:center;margin-bottom:8px}
-.reg-title{font-size:20px;font-weight:800;color:var(--amber);text-align:center}
-.reg-uid{font-size:11px;color:var(--text2);text-align:center;font-family:monospace;margin-top:4px;margin-bottom:22px}
-.reg-lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;font-weight:600}
-.reg-input{width:100%;background:#222;border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text);font-size:17px;outline:none;margin-bottom:16px;text-align:center}
-.reg-input:focus{border-color:var(--amber)}
-.reg-btn{width:100%;background:var(--amber);color:#000;border:none;border-radius:10px;padding:16px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:10px}
-.reg-btn:disabled{opacity:.5}
-.reg-cancel{width:100%;background:none;border:1px solid var(--border);border-radius:10px;padding:14px;color:var(--text2);font-size:14px;cursor:pointer}
+/* MAIN */
+#main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.mhdr{padding:16px 26px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.mhdr-l h2{font-size:18px;font-weight:700}
+.mhdr-l p{font-size:13px;color:var(--text2);margin-top:2px}
+.mc{flex:1;overflow-y:auto;padding:22px 26px}
+.sec{display:none}
+.sec.on{display:block}
 
-/* CARD */
-#card-screen{flex-direction:column}
-.card-info{background:var(--surface);margin:14px;border-radius:16px;padding:22px;border:1px solid var(--border);flex-shrink:0}
-.card-name{font-size:26px;font-weight:800;color:var(--amber)}
-.card-uid{font-size:11px;color:var(--text2);margin-top:3px;font-family:monospace}
-.tab-row{display:flex;justify-content:space-between;align-items:flex-end;margin-top:18px;padding-top:18px;border-top:1px solid var(--border)}
-.tab-label{color:var(--text2);font-size:13px}
-.tab-val{font-size:30px;font-weight:900;color:var(--amber)}
-.action-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 14px;flex-shrink:0}
-.btn-consume{background:var(--amber);color:#000;border:none;border-radius:12px;padding:18px;font-size:16px;font-weight:700;cursor:pointer}
-.btn-hist{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:18px;font-size:15px;cursor:pointer}
+/* STAT CARDS */
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:13px;margin-bottom:22px}
+.sc{background:var(--s1);border:1px solid var(--border);border-radius:13px;padding:16px 18px}
+.sc-l{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.7px}
+.sc-v{font-size:25px;font-weight:900;margin-top:5px}
+.sc-s{font-size:12px;color:var(--text2);margin-top:3px}
+.ca{color:var(--amber)} .cs{color:var(--success)} .cd{color:var(--danger)} .ci{color:var(--info)}
 
-/* BEVERAGES */
-#bev-screen{flex-direction:column}
-.bev-scroll{flex:1;overflow-y:auto;padding:12px}
-.bev-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.bev-card{background:var(--surface);border-radius:12px;overflow:hidden;border:2px solid var(--border);cursor:pointer;transition:border-color .15s}
-.bev-card:active{border-color:var(--amber)}
-.bev-img{width:100%;aspect-ratio:1;object-fit:cover;background:#222;display:block}
-.bev-ph{width:100%;aspect-ratio:1;background:#222;display:flex;align-items:center;justify-content:center;font-size:52px}
-.bev-info{padding:10px}
-.bev-nome{font-size:14px;font-weight:600}
-.bev-preco{font-size:16px;font-weight:800;color:var(--amber);margin-top:3px}
-.bev-stk{font-size:11px;color:var(--text2);margin-top:2px}
+/* PANEL */
+.panel{background:var(--s1);border:1px solid var(--border);border-radius:13px;padding:18px;margin-bottom:18px}
+.pt{font-size:13px;font-weight:700;color:var(--amber);margin-bottom:14px}
 
-/* CONFIRM */
-#confirm-screen{flex-direction:column}
-.confirm-body{flex:1;padding:14px;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
-.confirm-card{background:var(--surface);border-radius:14px;padding:20px;border:1px solid var(--border)}
-.confirm-lbl{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
-.confirm-val{font-size:22px;font-weight:800;color:var(--amber)}
-.confirm-rows{display:flex;flex-direction:column;gap:14px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
-.cRow{display:flex;justify-content:space-between;align-items:center}
-.cRow-l{color:var(--text2);font-size:14px}
-.cRow-v{font-size:16px;font-weight:600}
-.qty-ctl{display:flex;align-items:center;gap:14px;background:#2a2a2a;border-radius:10px;padding:8px 14px}
-.qty-btn{background:var(--amber);color:#000;border:none;border-radius:6px;width:32px;height:32px;font-size:22px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.qty-num{font-size:20px;font-weight:800;min-width:28px;text-align:center}
-.confirm-total{background:rgba(245,158,11,.1);border-radius:12px;padding:16px 20px;border:1px solid rgba(245,158,11,.3);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-.ct-label{color:var(--text2);font-size:14px}
-.ct-val{font-size:26px;font-weight:900;color:var(--amber)}
-.confirm-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px;flex-shrink:0}
-.btn-cancel{background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:12px;padding:18px;font-size:15px;cursor:pointer}
-.btn-ok{background:var(--amber);color:#000;border:none;border-radius:12px;padding:18px;font-size:16px;font-weight:700;cursor:pointer}
-.btn-ok:disabled{opacity:.5}
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 11px;border-bottom:2px solid var(--border);color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:.4px;font-weight:600;white-space:nowrap}
+td{padding:10px 11px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.thumb{width:36px;height:36px;border-radius:7px;object-fit:cover;background:#333;display:block}
+.thumb-ph{width:36px;height:36px;border-radius:7px;background:#333;display:flex;align-items:center;justify-content:center;font-size:18px}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.bok{background:rgba(34,197,94,.14);color:var(--success)}
+.bno{background:rgba(239,68,68,.14);color:var(--danger)}
 
-/* SUCCESS */
-#success-screen{justify-content:center;align-items:center;text-align:center;gap:20px;padding:32px}
-.suc-icon{font-size:72px}
-.suc-title{font-size:24px;font-weight:800;color:var(--success)}
-.suc-detail{color:var(--text2);font-size:15px}
-.suc-tab{font-size:34px;font-weight:900;color:var(--amber)}
-.suc-sub{color:var(--text2);font-size:13px;margin-top:-10px}
-.suc-btn{background:var(--amber);color:#000;border:none;border-radius:12px;padding:18px 44px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px}
+/* BUTTONS */
+.btn{padding:8px 15px;border-radius:8px;font-size:13px;font-weight:600;border:none;transition:opacity .15s}
+.btn:hover{opacity:.83}
+.bp{background:var(--amber);color:#000}
+.bs{background:var(--s2);color:var(--text);border:1px solid var(--border)!important}
+.bd{background:rgba(239,68,68,.1);color:var(--danger);border:1px solid rgba(239,68,68,.3)!important}
+.bsm{padding:5px 10px;font-size:12px}
+.pa{display:flex;justify-content:flex-end;margin-bottom:14px}
 
-/* HISTORY */
-#hist-screen{flex-direction:column}
-.hist-list{flex:1;overflow-y:auto;padding:12px}
-.hist-item{background:var(--surface);border-radius:10px;padding:14px 16px;margin-bottom:8px;border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.hist-bev{font-size:15px;font-weight:600}
-.hist-time{font-size:12px;color:var(--text2);margin-top:3px}
-.hist-v{font-size:16px;font-weight:800;color:var(--amber)}
-.hist-empty{text-align:center;color:var(--text2);padding:48px 24px;font-size:15px}
+/* FORMS */
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.fg input,.fg select{background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none;width:100%}
+.fg input:focus,.fg select:focus{border-color:var(--amber)}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:13px}
+.hr{border:none;border-top:1px solid var(--border);margin:16px 0}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:500}
+.mo.show{display:flex}
+.mb{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:26px;width:500px;max-width:92vw;max-height:90vh;overflow-y:auto}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.mh h3{font-size:15px;font-weight:700}
+.mx{background:none;border:none;color:var(--text2);font-size:22px}
+
+/* UPLOAD */
+.up-area{border:2px dashed var(--border);border-radius:10px;padding:18px;text-align:center;cursor:pointer;transition:border-color .15s}
+.up-area:hover{border-color:var(--amber)}
+.up-st{font-size:12px;color:var(--text2);margin-top:7px;min-height:16px}
+
+/* LANÇAR */
+.lc-step{background:var(--s2);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:13px}
+.lc-stitle{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:.9px;margin-bottom:11px;font-weight:600}
+.sel-cbox{background:var(--aglow);border:1px solid rgba(245,158,11,.3);border-radius:10px;padding:13px;display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.bpg{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:9px}
+.bpi{background:var(--s1);border:2px solid var(--border);border-radius:10px;padding:9px;text-align:center;cursor:pointer;transition:border-color .15s}
+.bpi:hover{border-color:var(--amber)}
+.bpi.sel{border-color:var(--amber);background:var(--aglow)}
+.bpi img{width:52px;height:52px;object-fit:cover;border-radius:6px;display:block;margin:0 auto 6px}
+.bpi-ph{width:52px;height:52px;border-radius:6px;background:#333;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 6px}
+.bpi-n{font-size:12px;font-weight:600}
+.bpi-p{font-size:12px;color:var(--amber);font-weight:700;margin-top:2px}
+.qty-row{display:flex;align-items:center;gap:14px}
+.qty-ctl{display:flex;align-items:center;gap:11px;background:var(--s1);border-radius:10px;padding:7px 14px;border:1px solid var(--border)}
+.qb{background:var(--amber);color:#000;border:none;border-radius:6px;width:28px;height:28px;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.qn{font-size:19px;font-weight:800;min-width:26px;text-align:center}
+.lc-tv{font-size:21px;font-weight:900;color:var(--amber)}
+
+/* RELATÓRIO */
+.rtabs{display:flex;gap:8px;margin-bottom:18px}
+.rtab{padding:7px 18px;border-radius:8px;font-size:13px;font-weight:600;background:var(--s2);color:var(--text2);border:1px solid var(--border);transition:all .15s}
+.rtab.on{background:var(--aglow);color:var(--amber);border-color:var(--amber)}
+.pb-w{height:5px;background:var(--border);border-radius:3px;margin-top:5px;overflow:hidden}
+.pb{height:100%;background:var(--success);border-radius:3px}
 
 /* LOADER/TOAST */
-.loader{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:center;justify-content:center;z-index:100;flex-direction:column;gap:14px}
-.loader.on{display:flex}
-.spinner{width:46px;height:46px;border:4px solid #333;border-top-color:var(--amber);border-radius:50%;animation:spin .75s linear infinite}
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:900;flex-direction:column;gap:13px}
+.ovl.on{display:flex}
+.sp{width:42px;height:42px;border:4px solid #333;border-top-color:var(--amber);border-radius:50%;animation:spin .75s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loader-txt{color:var(--text2);font-size:14px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface);color:var(--text);padding:12px 24px;border-radius:10px;font-size:14px;border:1px solid var(--border);z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;text-align:center;max-width:85vw}
-.toast.on{opacity:1}
-.toast.err{border-color:var(--danger);color:var(--danger)}
-.toast.ok{border-color:var(--success);color:var(--success)}
+.toastd{position:fixed;bottom:26px;right:26px;background:var(--s1);padding:12px 20px;border-radius:10px;font-size:13px;z-index:800;opacity:0;transition:opacity .3s;pointer-events:none;border:1px solid var(--border);min-width:200px}
+.toastd.on{opacity:1}
+.toastd.ok{border-color:var(--success);color:var(--success)}
+.toastd.err{border-color:var(--danger);color:var(--danger)}
+.empty{text-align:center;padding:36px;color:var(--text2)}
+.empty .ei{font-size:36px;margin-bottom:8px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
+.lc-ccard{background:var(--s1);border:2px solid var(--border);border-radius:10px;padding:11px 14px;cursor:pointer;transition:all .15s}
+.lc-ccard:hover{border-color:var(--amber);background:var(--aglow)}
+.lc-ccard.sel{border-color:var(--amber);background:var(--aglow)}
+.lc-ccard-n{font-size:14px;font-weight:700}
+.lc-ccard-t{font-size:12px;color:var(--text2);margin-top:3px}
+.lc-ccard.has-tab .lc-ccard-t{color:var(--amber)}
+.cart-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);gap:8px}
+.cart-item:last-child{border-bottom:none}
+.cart-item-n{font-size:13px;font-weight:600;flex:1}
+.cart-item-v{font-size:13px;color:var(--amber);font-weight:700;white-space:nowrap}
+.cart-qty{display:flex;align-items:center;gap:6px;background:var(--s2);border-radius:7px;padding:3px 8px}
+.cqb{background:none;border:none;color:var(--amber);font-size:16px;font-weight:800;cursor:pointer;padding:0 2px;line-height:1}
+.cqn{font-size:13px;font-weight:700;min-width:18px;text-align:center}
+.cart-rm{background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;padding:0 2px}
+.cart-rm:hover{color:var(--danger)}
+.cart-empty{text-align:center;color:var(--text2);font-size:13px;padding:20px 0}
 </style>
 </head>
 <body>
 
-<!-- HOME -->
-<div class="screen active" id="home">
-  <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
-    <img src="logo.png" class="logo-img" onerror="this.style.display='none'">
-    <div class="logo-title">BAR DOS BODES</div>
-    <div class="logo-sub">Sistema de Controle de Consumo</div>
-  </div>
-  <button class="nfc-btn" id="nfc-btn" onclick="startNFC()">
-    <span class="icon">📡</span>
-    <span class="lbl">INICIAR NFC</span>
-  </button>
-  <div class="status" id="status">Toque para ativar o NFC</div>
-</div>
-
-<!-- CADASTRAR NOVO CARTÃO -->
-<div class="screen" id="register-screen">
-  <div class="reg-box">
-    <div class="reg-icon">🆕</div>
-    <div class="reg-title">Cartão Novo</div>
-    <div class="reg-uid" id="reg-uid"></div>
-    <div class="reg-lbl">Nome do portador</div>
-    <input class="reg-input" type="text" id="reg-nome" placeholder="Digite o nome..." autocomplete="off"
-      onkeydown="if(event.key==='Enter')doRegister()">
-    <button class="reg-btn" id="reg-btn" onclick="doRegister()">Cadastrar e Continuar ✓</button>
-    <button class="reg-cancel" onclick="goHome()">Cancelar</button>
+<!-- LOGIN -->
+<div id="login">
+  <div class="lbox">
+    <div class="lbox-ico">🐐</div>
+    <div class="lbox-title">BAR DOS BODES</div>
+    <div class="lbox-sub">Painel de Administração</div>
+    <input type="password" id="lpwd" placeholder="••••" maxlength="20" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="lbtn" onclick="doLogin()">Entrar</button>
+    <div class="lerr" id="lerr"></div>
   </div>
 </div>
 
-<!-- CARTÃO -->
-<div class="screen" id="card-screen">
-  <div class="hdr">
-    <button class="hdr-back" onclick="goHome()">←</button>
-    <h1>BAR DOS BODES</h1>
-    <span style="color:var(--text2);font-size:18px">🐐</span>
-  </div>
-  <div class="card-info">
-    <div class="card-name" id="card-name">—</div>
-    <div class="card-uid"  id="card-uid"></div>
-    <div class="tab-row">
-      <div>
-        <div class="tab-label">Consumo acumulado</div>
-        <div class="tab-val" id="card-tab">R$ 0,00</div>
-      </div>
-      <div style="font-size:42px">🍺</div>
+<!-- APP -->
+<div id="app">
+  <nav id="sb">
+    <div class="sb-head">
+      <div class="sb-ico">🐐</div>
+      <div class="sb-name">BAR DOS BODES</div>
+      <div class="sb-sub">Painel Admin</div>
     </div>
-  </div>
-  <div class="action-row">
-    <button class="btn-consume" onclick="showBeverages()">🛒 Consumir</button>
-    <button class="btn-hist"    onclick="showHistory()">📋 Histórico</button>
-  </div>
-</div>
+    <div class="sb-nav">
+      <div class="ni on"  data-s="dashboard"  onclick="navTo('dashboard')"><span class="ni-ic">📊</span>Dashboard</div>
+      <div class="ni"     data-s="bebidas"     onclick="navTo('bebidas')"><span class="ni-ic">🍺</span>Bebidas</div>
+      <div class="ni"     data-s="cartoes"     onclick="navTo('cartoes')"><span class="ni-ic">💳</span>Cartões</div>
+      <div class="ni"     data-s="lancar"      onclick="navTo('lancar')"><span class="ni-ic">➕</span>Lançar</div>
+      <div class="ni"     data-s="relatorios"  onclick="navTo('relatorios')"><span class="ni-ic">📋</span>Relatórios</div>
+    </div>
+    <div class="sb-foot"><button class="sb-out" onclick="logout()">← Sair</button></div>
+  </nav>
 
-<!-- BEBIDAS -->
-<div class="screen" id="bev-screen">
-  <div class="hdr">
-    <button class="hdr-back" onclick="showScreen('card-screen')">←</button>
-    <h1>ESCOLHA A BEBIDA</h1>
-    <span style="color:var(--text2);font-size:13px" id="bev-hdr-nome"></span>
-  </div>
-  <div class="bev-scroll">
-    <div class="bev-grid" id="bev-grid"></div>
-  </div>
-</div>
+  <div id="main">
+    <div class="mhdr">
+      <div class="mhdr-l"><h2 id="mhdr-t">Dashboard</h2><p id="mhdr-s">Visão geral do evento</p></div>
+      <button class="btn bs bsm" onclick="refreshCur()">⟳ Atualizar</button>
+    </div>
+    <div class="mc" id="mc">
 
-<!-- CONFIRMAR -->
-<div class="screen" id="confirm-screen">
-  <div class="hdr">
-    <button class="hdr-back" onclick="showScreen('bev-screen')">←</button>
-    <h1>CONFIRMAR</h1>
-    <span></span>
-  </div>
-  <div class="confirm-body">
-    <div class="confirm-card">
-      <div class="confirm-lbl">Cartão</div>
-      <div class="confirm-val" id="cf-nome"></div>
-      <div class="confirm-rows">
-        <div class="cRow"><span class="cRow-l">Bebida</span><span class="cRow-v" id="cf-bev"></span></div>
-        <div class="cRow">
-          <span class="cRow-l">Quantidade</span>
-          <div class="qty-ctl">
-            <button class="qty-btn" onclick="chgQty(-1)">−</button>
-            <span class="qty-num" id="qty-num">1</span>
-            <button class="qty-btn" onclick="chgQty(1)">+</button>
+      <!-- DASHBOARD -->
+      <div class="sec on" id="sec-dashboard">
+        <!-- Alerta de estoque baixo -->
+        <div id="stk-alert" style="display:none;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.4);border-radius:12px;padding:14px 18px;margin-bottom:18px">
+          <div style="font-size:13px;font-weight:700;color:var(--danger);margin-bottom:8px">⚠️ Estoque Baixo</div>
+          <div id="stk-alert-list" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+        </div>
+        <div class="sg">
+          <div class="sc"><div class="sc-l">Total Vendido</div><div class="sc-v ca" id="sv-v">–</div></div>
+          <div class="sc"><div class="sc-l">Custo Total</div>  <div class="sc-v cd" id="sv-c">–</div></div>
+          <div class="sc"><div class="sc-l">Lucro Bruto</div>  <div class="sc-v cs" id="sv-l">–</div><div class="sc-s" id="sv-m"></div></div>
+          <div class="sc"><div class="sc-l">Transações</div>   <div class="sc-v ci" id="sv-t">–</div></div>
+        </div>
+        <div class="two">
+          <div class="panel"><div class="pt">🏆 Top Consumidores</div><div id="d-cards"></div></div>
+          <div class="panel"><div class="pt">🍺 Bebidas Mais Vendidas</div><div id="d-bevs"></div></div>
+        </div>
+      </div>
+
+      <!-- BEBIDAS -->
+      <div class="sec" id="sec-bebidas">
+        <div class="pa"><button class="btn bp" onclick="openBevModal()">+ Nova Bebida</button></div>
+        <div class="panel">
+          <div class="tw">
+            <table><thead><tr><th>Foto</th><th>Nome</th><th>Venda</th><th>Custo</th><th>Margem</th><th>Estoque</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="bev-tb"></tbody></table>
           </div>
         </div>
-        <div class="cRow"><span class="cRow-l">Valor unitário</span><span class="cRow-v" id="cf-unit"></span></div>
       </div>
+
+      <!-- CARTÕES -->
+      <div class="sec" id="sec-cartoes">
+        <div class="pa"><button class="btn bp" onclick="openCardModal()">+ Novo Cartão</button></div>
+        <div class="panel">
+          <div class="tw">
+            <table><thead><tr><th>UID</th><th>Nome</th><th>Tab Acumulada</th><th>Ações</th></tr></thead>
+            <tbody id="card-tb"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- LANÇAR -->
+      <div class="sec" id="sec-lancar">
+
+        <!-- Step 1: grade de cartões -->
+        <div class="lc-step">
+          <div class="lc-stitle">1 — Selecionar Cartão</div>
+          <input id="lc-srch" placeholder="🔍 Filtrar por nome…" oninput="filterLc()"
+            style="width:100%;background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;margin-bottom:12px">
+          <div id="lc-card-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px"></div>
+        </div>
+
+        <!-- Step 2: bebidas + carrinho -->
+        <div id="lc-s2" style="display:none">
+          <div style="display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:start">
+
+            <!-- Bebidas -->
+            <div class="lc-step" style="margin-bottom:0">
+              <div class="lc-stitle">2 — Adicionar ao Carrinho</div>
+              <div class="bpg" id="lc-bg"></div>
+            </div>
+
+            <!-- Carrinho -->
+            <div class="lc-step" style="margin-bottom:0;position:sticky;top:0">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                <div class="lc-stitle" style="margin-bottom:0">🛒 Carrinho — <span class="ca" id="lc-cn"></span></div>
+                <button class="btn bd bsm" onclick="lcClearCart()">Limpar</button>
+              </div>
+              <div id="lc-cart-items" style="min-height:60px"></div>
+              <div style="border-top:1px solid var(--border);margin-top:12px;padding-top:12px;display:flex;justify-content:space-between;align-items:center">
+                <div>
+                  <div style="font-size:11px;color:var(--text2)">Total</div>
+                  <div style="font-size:22px;font-weight:900;color:var(--amber)" id="lc-cart-total">R$ 0,00</div>
+                </div>
+                <button class="btn bp" style="padding:12px 22px;font-size:14px" id="lc-confirm-btn" onclick="doLancar()" disabled>Confirmar ✓</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RELATÓRIOS -->
+      <div class="sec" id="sec-relatorios">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div class="rtabs" style="margin-bottom:0">
+            <button class="rtab on" onclick="relSw('geral',this)">📊 Relatório Geral</button>
+            <button class="rtab"    onclick="relSw('pessoa',this)">👤 Por Pessoa</button>
+          </div>
+          <button class="btn bp" onclick="exportPDF()">📄 Exportar PDF</button>
+        </div>
+        <div id="rel-g">
+          <div class="sg" style="margin-bottom:18px">
+            <div class="sc"><div class="sc-l">Total Vendido</div><div class="sc-v ca" id="rg-v">–</div></div>
+            <div class="sc"><div class="sc-l">Custo Total</div>  <div class="sc-v cd" id="rg-c">–</div></div>
+            <div class="sc"><div class="sc-l">Lucro Bruto</div>  <div class="sc-v cs" id="rg-l">–</div><div class="sc-s" id="rg-m"></div></div>
+            <div class="sc"><div class="sc-l">Transações</div>   <div class="sc-v ci" id="rg-t">–</div></div>
+          </div>
+          <div class="panel">
+            <div class="pt">📦 Por Bebida</div>
+            <div class="tw"><table><thead><tr><th>Bebida</th><th>Qtd</th><th>Receita</th><th>Custo</th><th>Lucro</th><th>Margem</th></tr></thead><tbody id="rg-bt"></tbody></table></div>
+          </div>
+          <div class="panel">
+            <div class="pt">💳 Por Cartão</div>
+            <div class="tw"><table><thead><tr><th>#</th><th>Nome</th><th>Itens</th><th>Tab Total</th></tr></thead><tbody id="rg-ct"></tbody></table></div>
+          </div>
+        </div>
+        <div id="rel-p" style="display:none">
+          <div style="display:flex;gap:12px;margin-bottom:18px;flex-wrap:wrap;align-items:center">
+            <select id="rp-sel" onchange="loadPRel()"
+              style="flex:1;max-width:300px;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-size:13px;outline:none">
+              <option value="">— Selecione um cartão —</option>
+            </select>
+            <span id="rp-tot" style="font-size:18px;font-weight:800;color:var(--amber)"></span>
+          </div>
+          <div id="rp-cnt"></div>
+        </div>
+      </div>
+
     </div>
   </div>
-  <div class="confirm-total">
-    <span class="ct-label">Total a lançar</span>
-    <span class="ct-val" id="cf-total">R$ 0,00</span>
-  </div>
-  <div class="confirm-btns">
-    <button class="btn-cancel" onclick="showScreen('bev-screen')">Cancelar</button>
-    <button class="btn-ok" id="btn-ok" onclick="doConsume()">Confirmar ✓</button>
+</div>
+
+<!-- MODAL BEBIDA -->
+<div class="mo" id="m-bev">
+  <div class="mb">
+    <div class="mh"><h3 id="mbev-t">Nova Bebida</h3><button class="mx" onclick="closeBevM()">✕</button></div>
+    <input type="hidden" id="mbev-id">
+    <div class="fgrid">
+      <div class="fg"><label>Nome *</label><input type="text" id="mbev-n" placeholder="Ex: Cerveja Heineken"></div>
+      <div class="fg"><label>Preço de Venda R$ *</label><input type="number" id="mbev-p" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="fg"><label>Custo Unitário R$ *</label><input type="number" id="mbev-c" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="fg"><label>Estoque Inicial</label><input type="number" id="mbev-s" placeholder="0" min="0"></div>
+      <div class="fg"><label>Estoque Mínimo ⚠️</label><input type="number" id="mbev-smin" placeholder="0" min="0"><small style="color:var(--text2);font-size:11px;margin-top:3px">Alerta quando chegar nessa quantidade</small></div>
+    </div>
+    <hr class="hr">
+    <div class="fg" style="margin-bottom:11px">
+      <label>Foto da Bebida</label>
+      <div class="up-area" onclick="document.getElementById('mbev-f').click()">
+        <div style="font-size:24px">📷</div>
+        <div style="font-size:13px;color:var(--text2);margin-top:3px">Clique para selecionar uma imagem do computador</div>
+        <div class="up-st" id="up-st"></div>
+      </div>
+      <input type="file" id="mbev-f" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+    </div>
+    <div style="display:flex;align-items:center;gap:11px;margin-bottom:14px;min-height:46px">
+      <img id="mbev-prev" style="display:none;width:66px;height:66px;border-radius:9px;object-fit:cover;border:1px solid var(--border)">
+      <div id="mbev-ui" style="font-size:12px;color:var(--text2)"></div>
+    </div>
+    <input type="hidden" id="mbev-url">
+    <div style="display:flex;gap:9px;justify-content:flex-end">
+      <button class="btn bs" onclick="closeBevM()">Cancelar</button>
+      <button class="btn bp" onclick="saveBev()">Salvar Bebida</button>
+    </div>
   </div>
 </div>
 
-<!-- SUCESSO -->
-<div class="screen" id="success-screen">
-  <div class="suc-icon">✅</div>
-  <div class="suc-title">Lançado!</div>
-  <div class="suc-detail" id="suc-detail"></div>
-  <div class="suc-tab"    id="suc-tab"></div>
-  <div class="suc-sub">consumo acumulado</div>
-  <button class="suc-btn" onclick="goHome()">Nova leitura</button>
-</div>
-
-<!-- HISTÓRICO -->
-<div class="screen" id="hist-screen">
-  <div class="hdr">
-    <button class="hdr-back" onclick="showScreen('card-screen')">←</button>
-    <h1>HISTÓRICO</h1>
-    <span style="color:var(--text2);font-size:13px" id="hist-hdr-nome"></span>
+<!-- MODAL CARTÃO -->
+<div class="mo" id="m-card">
+  <div class="mb" style="width:380px">
+    <div class="mh"><h3>Novo Cartão</h3><button class="mx" onclick="closeCardM()">✕</button></div>
+    <div class="fgrid">
+      <div class="fg">
+        <label>UID do Cartão *</label>
+        <input type="text" id="mc-uid" placeholder="Ex: A508CA06" style="font-family:monospace;text-transform:uppercase">
+        <small style="color:var(--text2);font-size:11px;margin-top:3px">Aparece no app mobile ao aproximar o cartão</small>
+      </div>
+      <div class="fg"><label>Nome do Portador *</label><input type="text" id="mc-nome" placeholder="Ex: João Silva"></div>
+    </div>
+    <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:20px">
+      <button class="btn bs" onclick="closeCardM()">Cancelar</button>
+      <button class="btn bp" onclick="saveCard()">Cadastrar</button>
+    </div>
   </div>
-  <div class="hist-list" id="hist-list"></div>
 </div>
 
-<div class="loader" id="loader"><div class="spinner"></div><div class="loader-txt" id="loader-txt">Aguarde…</div></div>
-<div class="toast" id="toast"></div>
+<!-- MODAL HISTÓRICO CARTÃO -->
+<div class="mo" id="m-ch">
+  <div class="mb" style="width:580px">
+    <div class="mh">
+      <h3>Histórico — <span id="ch-n" class="ca"></span></h3>
+      <button class="mx" onclick="document.getElementById('m-ch').classList.remove('show')">✕</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;background:var(--s2);border-radius:9px;padding:11px 14px;margin-bottom:14px;font-size:13px;align-items:center">
+      <span>UID: <span id="ch-u" style="font-family:monospace;color:var(--text2)"></span></span>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span>Tab: <strong class="ca" id="ch-t"></strong></span>
+        <button class="btn bd bsm" id="ch-estorno-btn" onclick="doEstorno()">↩️ Estornar último</button>
+      </div>
+    </div>
+    <div class="tw">
+      <table><thead><tr><th>Data</th><th>Hora</th><th>Bebida</th><th>Qtd</th><th>Unit.</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody id="ch-tb"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<div class="ovl" id="ovl"><div class="sp"></div><div style="color:var(--text2);font-size:14px" id="ovl-t">Aguarde…</div></div>
+<div class="toastd" id="toastd"></div>
 
 <script>
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxgn9N6tDTtVbPpAdjPMZjVgFB4RixrVmRSoiav9Yq-LYlb3QAd1criHB32GBVZJ_S3/exec';
+const PASS = '1234';
+const STOCK_WARN = 5; // alerta quando estoque <= esse valor
 
-let curCard = null, curBev = null, curQty = 1, allBevs = [];
-let pendingUID = null; // UID do cartão novo aguardando cadastro
+// ── CACHE — carregado uma vez no login ──────────────────────
+let C = { cards: [], bevs: [], report: null, loaded: false };
+let _autoRefresh = null;
+const AUTO_REFRESH_MS = 20000; // 20 segundos
 
-// ── SCREENS ──────────────────────────────────────────────
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+// ── AUTH ────────────────────────────────────────────────────
+function doLogin() {
+  if (document.getElementById('lpwd').value !== PASS) {
+    document.getElementById('lerr').textContent = 'Senha incorreta';
+    document.getElementById('lpwd').value = '';
+    setTimeout(() => document.getElementById('lerr').textContent = '', 2000);
+    return;
+  }
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').classList.add('show');
+  loadAll();
+  startAutoRefresh();
 }
-function goHome() {
-  curCard = null; curBev = null; curQty = 1; pendingUID = null;
-  document.getElementById('nfc-btn').classList.remove('scanning');
-  document.getElementById('status').textContent = 'Toque para ativar o NFC';
-  showScreen('home');
+function logout() {
+  stopAutoRefresh();
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('lpwd').value = '';
+  C = { cards: [], bevs: [], report: null, loaded: false };
 }
 
-// ── API ──────────────────────────────────────────────────
+// ── API ─────────────────────────────────────────────────────
 async function api(p) {
   const r = await fetch(SCRIPT_URL + '?' + new URLSearchParams(p));
   return r.json();
@@ -273,207 +444,515 @@ async function apiPost(data) {
   const r = await fetch(SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(data) });
   return r.json();
 }
-function loading(on, txt) {
-  document.getElementById('loader').classList.toggle('on', on);
-  if (txt) document.getElementById('loader-txt').textContent = txt;
-}
-let _tt;
-function showToast(msg, type) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast on' + (type ? ' ' + type : '');
-  clearTimeout(_tt);
-  _tt = setTimeout(() => el.classList.remove('on'), 3200);
-}
-function fmt(v) { return 'R$ ' + Number(v).toFixed(2).replace('.', ','); }
 
-// ── SOM DE CONFIRMAÇÃO ───────────────────────────────────────
-function playSuccess() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    // dois bips ascendentes
-    [[660, 0, 0.12], [880, 0.13, 0.18]].forEach(([freq, start, end]) => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.25, ctx.currentTime + start);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + end);
-      osc.start(ctx.currentTime + start);
-      osc.stop(ctx.currentTime + end);
-    });
-  } catch(e) { /* sem suporte — ignora */ }
+// ── AUTO-REFRESH (silencioso, a cada 20s) ───────────────────
+function startAutoRefresh() {
+  stopAutoRefresh();
+  _autoRefresh = setInterval(silentReload, AUTO_REFRESH_MS);
 }
-
-// ── NFC ──────────────────────────────────────────────────
-async function startNFC() {
-  if (!('NDEFReader' in window)) {
-    showToast('NFC não suportado — use Chrome no Android', 'err'); return;
-  }
-  const btn = document.getElementById('nfc-btn');
-  btn.classList.add('scanning');
-  document.getElementById('status').textContent = 'Aguardando cartão…';
+function stopAutoRefresh() {
+  if (_autoRefresh) { clearInterval(_autoRefresh); _autoRefresh = null; }
+}
+async function silentReload() {
   try {
-    const ndef = new NDEFReader();
-    await ndef.scan();
-    ndef.onreadingerror = () => showToast('Erro ao ler cartão', 'err');
-    ndef.onreading = async (ev) => {
-      const uid = ev.serialNumber.replace(/:/g, '').toUpperCase();
-      btn.classList.remove('scanning');
-      await handleCard(uid);
-    };
+    const [rb, rc, rr] = await Promise.all([
+      api({ action:'getBeverages' }),
+      api({ action:'getCards' }),
+      api({ action:'getReport' })
+    ]);
+    C.bevs   = rb.beverages || [];
+    C.cards  = rc.cards     || [];
+    C.report = rr;
+    // re-renderiza a seção ativa sem mostrar spinner
+    const cur = document.querySelector('.ni.on')?.dataset.s || 'dashboard';
+    renderSection(cur);
   } catch(e) {
-    btn.classList.remove('scanning');
-    document.getElementById('status').textContent = 'Toque para ativar o NFC';
-    showToast('Permissão NFC negada — verifique as configurações do site', 'err');
+    // falha silenciosa — próximo ciclo tenta de novo
   }
 }
 
-async function handleCard(uid) {
-  loading(true, 'Buscando cartão…');
+// ── CARGA INICIAL (paralela) ────────────────────────────────
+async function loadAll() {
+  load(true, 'Carregando dados…');
   try {
-    const res = await api({ action: 'getCard', uid });
-    loading(false);
-    if (res.found) {
-      // Cartão já cadastrado — vai direto
-      curCard = res;
-      document.getElementById('card-name').textContent = res.nome;
-      document.getElementById('card-uid').textContent  = 'UID: ' + res.uid;
-      document.getElementById('card-tab').textContent  = fmt(res.tabTotal);
-      showScreen('card-screen');
-    } else {
-      // Cartão novo — abre tela de cadastro
-      pendingUID = uid;
-      document.getElementById('reg-uid').textContent = 'UID: ' + uid;
-      document.getElementById('reg-nome').value = '';
-      showScreen('register-screen');
-      setTimeout(() => document.getElementById('reg-nome').focus(), 200);
-    }
+    const [rb, rc, rr] = await Promise.all([
+      api({ action:'getBeverages' }),
+      api({ action:'getCards' }),
+      api({ action:'getReport' })
+    ]);
+    C.bevs   = rb.beverages || [];
+    C.cards  = rc.cards     || [];
+    C.report = rr;
+    C.loaded = true;
+    load(false);
+    renderDashboard();
   } catch(e) {
-    loading(false);
-    showToast('Erro de conexão', 'err');
+    load(false);
+    toast('Erro ao carregar dados. Tente atualizar.', 'err');
   }
 }
 
-// ── CADASTRO PELO CELULAR ────────────────────────────────
-async function doRegister() {
-  const nome = document.getElementById('reg-nome').value.trim();
-  if (!nome) { showToast('Digite o nome do portador', 'err'); return; }
-  const btn = document.getElementById('reg-btn');
-  btn.disabled = true;
-  loading(true, 'Cadastrando cartão…');
+async function reloadAll() {
+  load(true, 'Atualizando…');
   try {
-    const res = await apiPost({ action: 'registerCard', uid: pendingUID, nome });
-    loading(false);
-    btn.disabled = false;
-    if (res.success) {
-      curCard = { uid: pendingUID, nome, tabTotal: 0 };
-      document.getElementById('card-name').textContent = nome;
-      document.getElementById('card-uid').textContent  = 'UID: ' + pendingUID;
-      document.getElementById('card-tab').textContent  = fmt(0);
-      showScreen('card-screen');
-      showToast('Cartão cadastrado com sucesso!', 'ok');
-    } else {
-      showToast(res.error || 'Erro ao cadastrar', 'err');
-    }
+    const [rb, rc, rr] = await Promise.all([
+      api({ action:'getBeverages' }),
+      api({ action:'getCards' }),
+      api({ action:'getReport' })
+    ]);
+    C.bevs   = rb.beverages || [];
+    C.cards  = rc.cards     || [];
+    C.report = rr;
+    load(false);
+    const cur = document.querySelector('.ni.on')?.dataset.s || 'dashboard';
+    renderSection(cur);
   } catch(e) {
-    loading(false);
-    btn.disabled = false;
-    showToast('Erro de conexão', 'err');
+    load(false);
+    toast('Erro ao atualizar', 'err');
   }
 }
 
-// ── BEBIDAS ──────────────────────────────────────────────
-async function showBeverages() {
-  loading(true, 'Carregando bebidas…');
+// ── NAV ─────────────────────────────────────────────────────
+const META = {
+  dashboard:  ['Dashboard',        'Visão geral do evento'],
+  bebidas:    ['Bebidas',           'Gerenciar produtos e estoque'],
+  cartoes:    ['Cartões',           'Gerenciar portadores'],
+  lancar:     ['Lançar Consumo',    'Registrar consumo manualmente'],
+  relatorios: ['Relatórios',        'Análise detalhada de vendas']
+};
+function navTo(s) {
+  document.querySelectorAll('.ni').forEach(el => el.classList.remove('on'));
+  document.querySelector(`[data-s="${s}"]`).classList.add('on');
+  document.querySelectorAll('.sec').forEach(el => el.classList.remove('on'));
+  document.getElementById('sec-'+s).classList.add('on');
+  document.getElementById('mhdr-t').textContent = META[s][0];
+  document.getElementById('mhdr-s').textContent = META[s][1];
+  renderSection(s);
+}
+function refreshCur() { silentReload(); }
+function renderSection(s) {
+  if (s==='dashboard')   renderDashboard();
+  if (s==='bebidas')     renderBevTable();
+  if (s==='cartoes')     renderCardTable();
+  if (s==='lancar')      initLancar();
+  if (s==='relatorios')  renderRelGeral();
+}
+
+// ── HELPERS ─────────────────────────────────────────────────
+let _lt; function load(on,t){ document.getElementById('ovl').classList.toggle('on',on); if(t) document.getElementById('ovl-t').textContent=t; }
+let _tt; function toast(m,tp){ const e=document.getElementById('toastd'); e.textContent=m; e.className='toastd on'+(tp?' '+tp:''); clearTimeout(_tt); _tt=setTimeout(()=>e.classList.remove('on'),3500); }
+function fmt(v){ return v==null?'–':'R$ '+Number(v).toFixed(2).replace('.',','); }
+function pct(v){ return Number(v).toFixed(1)+'%'; }
+
+// ── DASHBOARD ───────────────────────────────────────────────
+function renderDashboard() {
+  if (!C.report) return;
+  const s = C.report.summary;
+  document.getElementById('sv-v').textContent = fmt(s.totalVendido);
+  document.getElementById('sv-c').textContent = fmt(s.totalCusto);
+  document.getElementById('sv-l').textContent = fmt(s.lucro);
+  document.getElementById('sv-m').textContent = 'margem ' + s.margem + '%';
+  document.getElementById('sv-t').textContent = s.totalTransacoes;
+
+  // Alerta de estoque baixo (usa estoqueMin de cada bebida)
+  const baixas = C.bevs.filter(b => b.ativo && b.estoqueMin > 0 && b.estoque <= b.estoqueMin);
+  const alertDiv = document.getElementById('stk-alert');
+  if (baixas.length) {
+    alertDiv.style.display = 'block';
+    document.getElementById('stk-alert-list').innerHTML = baixas.map(b =>
+      `<span style="background:rgba(239,68,68,.2);color:var(--danger);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600">${b.nome}: ${b.estoque} un.</span>`
+    ).join('');
+  } else {
+    alertDiv.style.display = 'none';
+  }
+
+  const medals = ['🥇','🥈','🥉','4º','5º'];
+  document.getElementById('d-cards').innerHTML = C.report.byCard.slice(0,5).map((c,i)=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;gap:9px;align-items:center">
+        <span style="font-size:17px">${medals[i]||''}</span>
+        <div><div style="font-size:13px;font-weight:600">${c.nome}</div><div style="font-size:11px;color:var(--text2)">${c.qtd} itens</div></div>
+      </div>
+      <strong class="ca">${fmt(c.tabTotal)}</strong>
+    </div>`).join('') || '<div class="empty"><div class="ei">📭</div>Sem dados ainda</div>';
+  document.getElementById('d-bevs').innerHTML = C.report.byBeverage.slice(0,5).map(b=>{
+    const m = b.vendido>0 ? Math.max(0,(b.lucro/b.vendido)*100) : 0;
+    return `<div style="padding:9px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between">
+        <span style="font-size:13px;font-weight:600">${b.nome}</span>
+        <strong class="ca">${fmt(b.vendido)}</strong>
+      </div>
+      <div style="font-size:11px;color:var(--text2);margin-top:3px">${b.qty} un. · Lucro ${fmt(b.lucro)} · ${pct(m)}</div>
+      <div class="pb-w"><div class="pb" style="width:${m}%"></div></div>
+    </div>`;
+  }).join('') || '<div class="empty"><div class="ei">📭</div>Sem dados ainda</div>';
+}
+
+// ── BEBIDAS ─────────────────────────────────────────────────
+function renderBevTable() {
+  const tb = document.getElementById('bev-tb');
+  if (!C.bevs.length) { tb.innerHTML=`<tr><td colspan="8"><div class="empty"><div class="ei">🍺</div>Nenhuma bebida cadastrada</div></td></tr>`; return; }
+  tb.innerHTML = C.bevs.map(b=>{
+    const m = b.precoVenda>0 ? ((b.precoVenda-b.custoUnitario)/b.precoVenda*100).toFixed(1) : '0';
+    const lowStk = b.ativo && b.estoqueMin > 0 && b.estoque <= b.estoqueMin;
+    const stkStyle = lowStk ? 'color:var(--danger);font-weight:700' : '';
+    const rowStyle = lowStk ? 'background:rgba(239,68,68,.05)' : '';
+    return `<tr style="${rowStyle}">
+      <td>${b.fotoUrl?`<img class="thumb" src="${b.fotoUrl}" onerror="this.style.display='none'">`:`<div class="thumb-ph">🍺</div>`}</td>
+      <td><strong>${b.nome}</strong>${lowStk?` <span style="font-size:11px;color:var(--danger)">⚠️ baixo</span>`:''}</td>
+      <td class="ca" style="font-weight:700">${fmt(b.precoVenda)}</td>
+      <td class="cd">${fmt(b.custoUnitario)}</td>
+      <td class="cs">${m}%</td>
+      <td style="${stkStyle}">${b.estoque}</td>
+      <td><span class="badge ${b.ativo?'bok':'bno'}">${b.ativo?'Ativo':'Inativo'}</span></td>
+      <td style="display:flex;gap:5px">
+        <button class="btn bs bsm" onclick="editBev(${b.id})">✏️ Editar</button>
+        <button class="btn bd bsm" onclick="deactivateBev(${b.id},'${b.nome.replace(/'/g,"\\'")}')">🗑️</button>
+      </td></tr>`;
+  }).join('');
+}
+function openBevModal() {
+  ['mbev-id','mbev-n','mbev-p','mbev-c','mbev-s','mbev-smin','mbev-url'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mbev-prev').style.display='none';
+  document.getElementById('mbev-ui').textContent='';
+  document.getElementById('up-st').textContent='';
+  document.getElementById('mbev-t').textContent='Nova Bebida';
+  document.getElementById('m-bev').classList.add('show');
+}
+function editBev(id) {
+  const b = C.bevs.find(x=>x.id==id); if(!b) return;
+  document.getElementById('mbev-id').value  = b.id;
+  document.getElementById('mbev-n').value   = b.nome;
+  document.getElementById('mbev-p').value   = b.precoVenda;
+  document.getElementById('mbev-c').value   = b.custoUnitario;
+  document.getElementById('mbev-s').value   = b.estoque;
+  document.getElementById('mbev-smin').value= b.estoqueMin || 0;
+  document.getElementById('mbev-url').value = b.fotoUrl||'';
+  document.getElementById('up-st').textContent='';
+  if (b.fotoUrl) { const img=document.getElementById('mbev-prev'); img.src=b.fotoUrl; img.style.display='block'; document.getElementById('mbev-ui').textContent='Foto atual'; }
+  else { document.getElementById('mbev-prev').style.display='none'; document.getElementById('mbev-ui').textContent=''; }
+  document.getElementById('mbev-t').textContent='Editar Bebida';
+  document.getElementById('m-bev').classList.add('show');
+}
+function closeBevM() { document.getElementById('m-bev').classList.remove('show'); }
+async function deactivateBev(id,n) {
+  if (!confirm(`Desativar "${n}"?`)) return;
+  load(true,'Desativando…');
+  const r = await apiPost({ action:'deleteBeverage', id });
+  load(false);
+  if (r.success) { toast('Bebida desativada','ok'); await reloadAll(); } else toast(r.error||'Erro','err');
+}
+async function handlePhoto(ev) {
+  const file = ev.target.files[0]; if (!file) return;
+  document.getElementById('up-st').textContent='⏳ Comprimindo…';
+  const b64 = await compressImg(file, 450, 0.82);
+  const prev = document.getElementById('mbev-prev'); prev.src='data:image/jpeg;base64,'+b64; prev.style.display='block';
+  document.getElementById('up-st').textContent='⏳ Enviando…';
   try {
-    const res = await api({ action: 'getBeverages' });
-    loading(false);
-    allBevs = res.beverages || [];
-    document.getElementById('bev-hdr-nome').textContent = curCard.nome;
-    const grid = document.getElementById('bev-grid');
-    if (!allBevs.length) {
-      grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--text2);padding:40px">Nenhuma bebida cadastrada</div>';
-    } else {
-      grid.innerHTML = allBevs.map(b => `
-        <div class="bev-card" onclick="selectBev(${b.id})">
-          ${b.fotoUrl ? `<img class="bev-img" src="${b.fotoUrl}" loading="lazy" onerror="this.style.display='none'">` : `<div class="bev-ph">🍺</div>`}
-          <div class="bev-info">
-            <div class="bev-nome">${b.nome}</div>
-            <div class="bev-preco">${fmt(b.precoVenda)}</div>
-            <div class="bev-stk">Estoque: ${b.estoque}</div>
+    const r = await apiPost({ action:'uploadPhoto', base64:b64, filename:file.name });
+    if (r.success) { document.getElementById('mbev-url').value=r.url; document.getElementById('mbev-ui').textContent='✅ Upload concluído'; document.getElementById('up-st').textContent=''; }
+    else document.getElementById('up-st').textContent='❌ '+r.error;
+  } catch(e) { document.getElementById('up-st').textContent='❌ Erro de conexão'; }
+}
+function compressImg(file,px,q) {
+  return new Promise(res=>{
+    const c=document.createElement('canvas'),img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{ const ratio=Math.min(px/img.width,px/img.height,1); c.width=Math.round(img.width*ratio); c.height=Math.round(img.height*ratio); c.getContext('2d').drawImage(img,0,0,c.width,c.height); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',q).split(',')[1]); };
+    img.src=url;
+  });
+}
+async function saveBev() {
+  const id=document.getElementById('mbev-id').value, nome=document.getElementById('mbev-n').value.trim(),
+        preco=document.getElementById('mbev-p').value, custo=document.getElementById('mbev-c').value,
+        stk=document.getElementById('mbev-s').value,   smin=document.getElementById('mbev-smin').value,
+        url=document.getElementById('mbev-url').value;
+  if (!nome||!preco||!custo) { toast('Preencha nome, preço e custo','err'); return; }
+  load(true,'Salvando…');
+  const pl = { nome, precoVenda:preco, custoUnitario:custo, estoque:stk||0, estoqueMin:smin||0, fotoUrl:url };
+  let r;
+  if (id) { pl.action='updateBeverage'; pl.id=id; r=await apiPost(pl); }
+  else    { pl.action='addBeverage';              r=await apiPost(pl); }
+  load(false);
+  if (r.success) { toast('Bebida salva!','ok'); closeBevM(); await reloadAll(); } else toast(r.error||'Erro','err');
+}
+
+// ── CARTÕES ─────────────────────────────────────────────────
+function renderCardTable() {
+  const tb = document.getElementById('card-tb');
+  if (!C.cards.length) { tb.innerHTML=`<tr><td colspan="4"><div class="empty"><div class="ei">💳</div>Nenhum cartão cadastrado</div></td></tr>`; return; }
+  tb.innerHTML = C.cards.map(c=>`
+    <tr>
+      <td style="font-family:monospace;font-size:12px;color:var(--text2)">${c.uid}</td>
+      <td><strong>${c.nome}</strong></td>
+      <td style="font-weight:700" class="ca">${fmt(c.tabTotal)}</td>
+      <td><button class="btn bs bsm" onclick="viewCardHist('${c.uid}','${c.nome.replace(/'/g,"\\'")}',${c.tabTotal})">📋 Ver histórico</button></td>
+    </tr>`).join('');
+}
+function openCardModal() { document.getElementById('mc-uid').value=''; document.getElementById('mc-nome').value=''; document.getElementById('m-card').classList.add('show'); }
+function closeCardM() { document.getElementById('m-card').classList.remove('show'); }
+async function saveCard() {
+  const uid=document.getElementById('mc-uid').value.trim().toUpperCase().replace(/\s/g,''), nome=document.getElementById('mc-nome').value.trim();
+  if (!uid||!nome) { toast('Preencha UID e nome','err'); return; }
+  load(true,'Cadastrando…');
+  const r = await apiPost({ action:'registerCard', uid, nome });
+  load(false);
+  if (r.success) { toast('Cartão cadastrado!','ok'); closeCardM(); await reloadAll(); } else toast(r.error||'Erro','err');
+}
+let chUID = null;
+async function viewCardHist(uid,nome,tab) {
+  chUID = uid;
+  load(true,'Carregando histórico…');
+  const r = await api({ action:'getTransactions', uid });
+  load(false);
+  document.getElementById('ch-n').textContent = nome;
+  document.getElementById('ch-u').textContent = uid;
+  document.getElementById('ch-t').textContent = fmt(tab);
+  const rows = (r.transactions||[]).reverse();
+  document.getElementById('ch-tb').innerHTML = rows.map(t=>{
+    const estornado = t.tipo === 'ESTORNADO';
+    return `<tr style="${estornado?'opacity:.45;text-decoration:line-through':''}">
+      <td>${t.data}</td><td style="color:var(--text2)">${t.hora}</td><td>${t.bebida}</td>
+      <td>${t.quantidade}×</td><td>${fmt(t.valorUnitario)}</td>
+      <td class="ca" style="font-weight:700">${fmt(t.valorTotal)}</td>
+      <td><span class="badge ${estornado?'bno':'bok'}">${estornado?'Estornado':'OK'}</span></td>
+    </tr>`;
+  }).join('')
+    || `<tr><td colspan="7" style="text-align:center;color:var(--text2);padding:18px">Sem histórico</td></tr>`;
+  document.getElementById('m-ch').classList.add('show');
+}
+
+// ── LANÇAR (grade de cartões + carrinho) ────────────────────
+let lcCard = null, lcCart = []; // cart: [{bev, qty}]
+
+function initLancar() {
+  lcCard = null; lcCart = [];
+  renderLcCardGrid();
+  document.getElementById('lc-s2').style.display = 'none';
+  document.getElementById('lc-srch').value = '';
+}
+
+function renderLcCardGrid() {
+  const q    = document.getElementById('lc-srch').value.toLowerCase();
+  const list = [...C.cards]
+    .filter(c => c.nome.toLowerCase().includes(q))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  document.getElementById('lc-card-grid').innerHTML = list.map(c => `
+    <div class="lc-ccard ${c.tabTotal > 0 ? 'has-tab' : ''} ${lcCard && lcCard.uid === c.uid ? 'sel' : ''}"
+      onclick="selLcCard('${c.uid}')">
+      <div class="lc-ccard-n">${c.nome}</div>
+      <div class="lc-ccard-t">${c.tabTotal > 0 ? fmt(c.tabTotal) : 'R$ 0,00'}</div>
+    </div>`).join('') || '<div style="color:var(--text2);font-size:13px">Nenhum cartão encontrado</div>';
+}
+
+function filterLc() { renderLcCardGrid(); }
+
+function selLcCard(uid) {
+  lcCard = C.cards.find(c => c.uid === uid);
+  lcCart = [];
+  renderLcCardGrid();
+  document.getElementById('lc-cn').textContent = lcCard.nome;
+  // monta grade de bebidas
+  document.getElementById('lc-bg').innerHTML = C.bevs.map(b => `
+    <div class="bpi" id="bpi-${b.id}" onclick="lcAddToCart(${b.id})">
+      ${b.fotoUrl ? `<img src="${b.fotoUrl}" onerror="this.outerHTML='<div class=bpi-ph>🍺</div>'">` : `<div class="bpi-ph">🍺</div>`}
+      <div class="bpi-n">${b.nome}</div>
+      <div class="bpi-p">${fmt(b.precoVenda)}</div>
+    </div>`).join('');
+  renderCart();
+  document.getElementById('lc-s2').style.display = 'block';
+  document.getElementById('lc-s2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function lcAddToCart(id) {
+  const bev = C.bevs.find(b => b.id == id); if (!bev) return;
+  const existing = lcCart.find(i => i.bev.id == id);
+  if (existing) { existing.qty++; }
+  else          { lcCart.push({ bev, qty: 1 }); }
+  // pulsa o item na grade
+  const el = document.getElementById('bpi-' + id);
+  if (el) { el.classList.add('sel'); setTimeout(() => el.classList.remove('sel'), 300); }
+  renderCart();
+}
+
+function lcCartDelta(id, d) {
+  const item = lcCart.find(i => i.bev.id == id); if (!item) return;
+  item.qty += d;
+  if (item.qty <= 0) lcCart = lcCart.filter(i => i.bev.id != id);
+  renderCart();
+}
+
+function lcRemove(id) {
+  lcCart = lcCart.filter(i => i.bev.id != id);
+  renderCart();
+}
+
+function lcClearCart() { lcCart = []; renderCart(); }
+
+function renderCart() {
+  const total = lcCart.reduce((s, i) => s + i.bev.precoVenda * i.qty, 0);
+  document.getElementById('lc-cart-items').innerHTML = lcCart.length
+    ? lcCart.map(i => `
+        <div class="cart-item">
+          <div class="cart-item-n">${i.bev.nome}</div>
+          <div class="cart-qty">
+            <button class="cqb" onclick="lcCartDelta(${i.bev.id},-1)">−</button>
+            <span class="cqn">${i.qty}</span>
+            <button class="cqb" onclick="lcCartDelta(${i.bev.id},1)">+</button>
           </div>
-        </div>`).join('');
+          <div class="cart-item-v">${fmt(i.bev.precoVenda * i.qty)}</div>
+          <button class="cart-rm" onclick="lcRemove(${i.bev.id})">✕</button>
+        </div>`).join('')
+    : '<div class="cart-empty">Nenhum item adicionado</div>';
+  document.getElementById('lc-cart-total').textContent = fmt(total);
+  document.getElementById('lc-confirm-btn').disabled = lcCart.length === 0;
+}
+
+async function doLancar() {
+  if (!lcCard || !lcCart.length) return;
+  const total = lcCart.reduce((s, i) => s + i.bev.precoVenda * i.qty, 0);
+  const resumo = lcCart.map(i => `${i.qty}× ${i.bev.nome}`).join(', ');
+  if (!confirm(`Lançar para ${lcCard.nome}:\n${resumo}\nTotal: ${fmt(total)}`)) return;
+  load(true, 'Lançando…');
+  // envia cada item sequencialmente
+  let newTab = lcCard.tabTotal;
+  for (const item of lcCart) {
+    const r = await apiPost({ action:'consume', uid:lcCard.uid, beverageId:item.bev.id, qty:item.qty });
+    if (r.success) {
+      newTab = r.card.tabTotal;
+      // atualiza estoque no cache
+      const bi = C.bevs.findIndex(b => b.id == item.bev.id);
+      if (bi !== -1) C.bevs[bi].estoque = Math.max(0, C.bevs[bi].estoque - item.qty);
     }
-    showScreen('bev-screen');
-  } catch(e) {
-    loading(false);
-    showToast('Erro ao carregar bebidas', 'err');
+  }
+  load(false);
+  // atualiza tab no cache
+  const idx = C.cards.findIndex(c => c.uid === lcCard.uid);
+  if (idx !== -1) C.cards[idx].tabTotal = newTab;
+  lcCard.tabTotal = newTab;
+  toast(`✅ Lançado! Tab de ${lcCard.nome}: ${fmt(newTab)}`, 'ok');
+  lcCart = [];
+  renderCart();
+  renderLcCardGrid();
+}
+
+// ── ESTORNO ─────────────────────────────────────────────────
+async function doEstorno() {
+  if (!chUID) return;
+  const nome = document.getElementById('ch-n').textContent;
+  if (!confirm(`Estornar o último lançamento de ${nome}?\nEssa ação reverte o consumo e restaura o estoque.`)) return;
+  load(true,'Estornando…');
+  const r = await apiPost({ action:'estornar', uid:chUID });
+  load(false);
+  if (r.success) {
+    toast(`↩️ Estornado: ${r.qty}× ${r.bevName} — ${fmt(r.valor)}`,'ok');
+    document.getElementById('m-ch').classList.remove('show');
+    await reloadAll();
+  } else {
+    toast(r.error||'Erro ao estornar','err');
   }
 }
 
-function selectBev(id) {
-  curBev = allBevs.find(b => b.id == id); if (!curBev) return;
-  curQty = 1;
-  document.getElementById('cf-nome').textContent  = curCard.nome;
-  document.getElementById('cf-bev').textContent   = curBev.nome;
-  document.getElementById('cf-unit').textContent  = fmt(curBev.precoVenda);
-  document.getElementById('qty-num').textContent  = 1;
-  document.getElementById('cf-total').textContent = fmt(curBev.precoVenda);
-  showScreen('confirm-screen');
-}
+// ── EXPORTAR PDF ─────────────────────────────────────────────
+function exportPDF() {
+  if (!C.report) { toast('Carregue os relatórios primeiro','err'); return; }
+  const s  = C.report.summary;
+  const now = new Date().toLocaleString('pt-BR');
 
-function chgQty(d) {
-  curQty = Math.max(1, curQty + d);
-  document.getElementById('qty-num').textContent  = curQty;
-  document.getElementById('cf-total').textContent = fmt(curBev.precoVenda * curQty);
-}
+  const rows_bev = C.report.byBeverage.map((b,i) => {
+    const m = b.vendido>0 ? ((b.lucro/b.vendido)*100).toFixed(1) : '0';
+    return `<tr>
+      <td>${i+1}</td><td>${b.nome}</td><td>${b.qty}</td>
+      <td>R$ ${b.vendido.toFixed(2)}</td><td>R$ ${b.custo.toFixed(2)}</td>
+      <td>R$ ${b.lucro.toFixed(2)}</td><td>${m}%</td>
+    </tr>`;
+  }).join('');
 
-// ── CONSUMO ──────────────────────────────────────────────
-async function doConsume() {
-  const btn = document.getElementById('btn-ok');
-  btn.disabled = true;
-  loading(true, 'Lançando…');
-  try {
-    const res = await apiPost({ action:'consume', uid:curCard.uid, beverageId:curBev.id, qty:curQty });
-    loading(false); btn.disabled = false;
-    if (!res.success) { showToast(res.error || 'Erro ao lançar', 'err'); return; }
-    playSuccess();
-    document.getElementById('suc-detail').textContent = `${curQty}× ${curBev.nome}  •  ${fmt(curBev.precoVenda * curQty)}`;
-    document.getElementById('suc-tab').textContent    = fmt(res.card.tabTotal);
-    showScreen('success-screen');
-  } catch(e) {
-    loading(false); btn.disabled = false;
-    showToast('Erro de conexão', 'err');
-  }
-}
+  const rows_card = C.report.byCard.map((c,i) => `
+    <tr><td>${i+1}</td><td>${c.nome}</td><td>${c.qtd}</td><td>R$ ${c.tabTotal.toFixed(2)}</td></tr>
+  `).join('');
 
-// ── HISTÓRICO ────────────────────────────────────────────
-async function showHistory() {
-  loading(true, 'Carregando histórico…');
-  try {
-    const res = await api({ action:'getTransactions', uid:curCard.uid });
-    loading(false);
-    document.getElementById('hist-hdr-nome').textContent = curCard.nome;
-    const trans = (res.transactions || []).reverse();
-    const list  = document.getElementById('hist-list');
-    list.innerHTML = trans.length
-      ? trans.map(t => `
-          <div class="hist-item">
-            <div>
-              <div class="hist-bev">${t.bebida}</div>
-              <div class="hist-time">${t.data} às ${t.hora} &nbsp;·&nbsp; ${t.quantidade}×</div>
-            </div>
-            <div class="hist-v">${fmt(t.valorTotal)}</div>
-          </div>`).join('')
-      : '<div class="hist-empty">Nenhum consumo registrado ainda</div>';
-    showScreen('hist-screen');
-  } catch(e) {
-    loading(false);
-    showToast('Erro ao carregar histórico', 'err');
-  }
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>Relatório Bar dos Bodes</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:13px;color:#111;padding:30px}
+    h1{font-size:20px;margin-bottom:4px} .sub{color:#666;font-size:12px;margin-bottom:24px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+    .card{border:1px solid #ddd;border-radius:8px;padding:14px}
+    .card-l{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px}
+    .card-v{font-size:22px;font-weight:700;margin-top:4px}
+    .amber{color:#d97706} .green{color:#16a34a} .red{color:#dc2626} .blue{color:#2563eb}
+    h2{font-size:14px;margin:20px 0 10px;border-bottom:2px solid #f59e0b;padding-bottom:6px}
+    table{width:100%;border-collapse:collapse;font-size:12px}
+    th{text-align:left;padding:7px 10px;background:#f5f5f5;border-bottom:2px solid #ddd;font-size:11px;text-transform:uppercase}
+    td{padding:7px 10px;border-bottom:1px solid #eee}
+    tr:hover td{background:#fafafa}
+    .footer{margin-top:32px;font-size:11px;color:#aaa;text-align:center}
+    @media print{body{padding:10px}.footer{position:fixed;bottom:0;width:100%}}
+  </style></head><body>
+  <h1>🐐 Bar dos Bodes — Relatório do Evento</h1>
+  <div class="sub">Gerado em ${now}</div>
+  <div class="grid">
+    <div class="card"><div class="card-l">Total Vendido</div><div class="card-v amber">R$ ${s.totalVendido.toFixed(2)}</div></div>
+    <div class="card"><div class="card-l">Custo Total</div><div class="card-v red">R$ ${s.totalCusto.toFixed(2)}</div></div>
+    <div class="card"><div class="card-l">Lucro Bruto</div><div class="card-v green">R$ ${s.lucro.toFixed(2)}</div></div>
+    <div class="card"><div class="card-l">Margem / Transações</div><div class="card-v blue">${s.margem}% · ${s.totalTransacoes}</div></div>
+  </div>
+  <h2>📦 Por Bebida</h2>
+  <table><thead><tr><th>#</th><th>Bebida</th><th>Qtd</th><th>Receita</th><th>Custo</th><th>Lucro</th><th>Margem</th></tr></thead>
+  <tbody>${rows_bev}</tbody></table>
+  <h2>💳 Tab por Cartão</h2>
+  <table><thead><tr><th>#</th><th>Nome</th><th>Itens</th><th>Tab Total</th></tr></thead>
+  <tbody>${rows_card}</tbody></table>
+  <div class="footer">Bar dos Bodes — Sistema de Controle de Consumo</div>
+  <script>window.onload=()=>window.print()<\/script>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+}
+function renderRelGeral() {
+  if (!C.report) return;
+  const s=C.report.summary;
+  document.getElementById('rg-v').textContent=fmt(s.totalVendido);
+  document.getElementById('rg-c').textContent=fmt(s.totalCusto);
+  document.getElementById('rg-l').textContent=fmt(s.lucro);
+  document.getElementById('rg-m').textContent='Margem: '+s.margem+'%';
+  document.getElementById('rg-t').textContent=s.totalTransacoes;
+  document.getElementById('rg-bt').innerHTML = C.report.byBeverage.map(b=>{
+    const m=b.vendido>0?((b.lucro/b.vendido)*100).toFixed(1):'0';
+    return `<tr><td><strong>${b.nome}</strong></td><td>${b.qty}</td><td class="ca" style="font-weight:700">${fmt(b.vendido)}</td><td class="cd">${fmt(b.custo)}</td><td class="cs">${fmt(b.lucro)}</td><td>${m}%</td></tr>`;
+  }).join('')||`<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:18px">Sem dados</td></tr>`;
+  document.getElementById('rg-ct').innerHTML = C.report.byCard.map((c,i)=>`
+    <tr><td style="color:var(--text2)">${i+1}</td><td><strong>${c.nome}</strong></td><td>${c.qtd}</td><td class="ca" style="font-weight:700">${fmt(c.tabTotal)}</td></tr>`).join('')
+    ||`<tr><td colspan="4" style="text-align:center;color:var(--text2);padding:18px">Sem dados</td></tr>`;
+  // popula select pessoa
+  const sel=document.getElementById('rp-sel');
+  sel.innerHTML='<option value="">— Selecione um cartão —</option>'+C.cards.map(c=>`<option value="${c.uid}">${c.nome} — ${fmt(c.tabTotal)}</option>`).join('');
+}
+function relSw(tab,el) {
+  document.querySelectorAll('.rtab').forEach(b=>b.classList.remove('on')); el.classList.add('on');
+  document.getElementById('rel-g').style.display=tab==='geral'?'block':'none';
+  document.getElementById('rel-p').style.display=tab==='pessoa'?'block':'none';
+}
+async function loadPRel() {
+  const uid=document.getElementById('rp-sel').value;
+  document.getElementById('rp-tot').textContent='';
+  if (!uid) { document.getElementById('rp-cnt').innerHTML=''; return; }
+  load(true,'Carregando…');
+  const r=await api({ action:'getTransactions', uid });
+  load(false);
+  const rows=(r.transactions||[]).reverse();
+  const total=rows.reduce((s,t)=>s+t.valorTotal,0);
+  document.getElementById('rp-tot').textContent='Total: '+fmt(total);
+  document.getElementById('rp-cnt').innerHTML=`
+    <div class="panel">
+      <div class="pt">Histórico detalhado</div>
+      <div class="tw"><table>
+        <thead><tr><th>Data</th><th>Hora</th><th>Bebida</th><th>Qtd</th><th>Unit.</th><th>Total</th></tr></thead>
+        <tbody>${rows.map(t=>`<tr><td>${t.data}</td><td style="color:var(--text2)">${t.hora}</td><td>${t.bebida}</td><td>${t.quantidade}×</td><td>${fmt(t.valorUnitario)}</td><td class="ca" style="font-weight:700">${fmt(t.valorTotal)}</td></tr>`).join('')||`<tr><td colspan="6" style="text-align:center;color:var(--text2);padding:18px">Sem histórico</td></tr>`}</tbody>
+      </table></div>
+    </div>`;
 }
 </script>
 </body>
